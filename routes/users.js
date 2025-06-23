@@ -42,6 +42,7 @@ router.get('/', isLoggedIn, async function (req, res, next) {
       data: users,
       title: 'users',
       name: req.session.name,
+      search: query,
       page,
       count,
       pages,

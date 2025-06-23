@@ -72,10 +72,10 @@
                                             <span class="px-1 mt-1">Show</span>
                                             <select type="text" id="limit" name="limit"
                                                 class="custom-select custom-select-sm form-control form-control-sm"
-                                                aria-label="Default select example">
-                                                <option value="3">3</option>
-                                                <option value="10">10</option>
-                                                <option value="100">100</option>
+                                                aria-label="Default select example" onchange="chooseLimit()">
+                                                <option value="3" <%= limit == 3 ? 'selected' : '' %>>3</option>
+                                                <option value="10" <%= limit == 10 ? 'selected' : '' %>>10</option>
+                                                <option value="100" <%= limit == 100 ? 'selected' : '' %>>100</option>
                                             </select>
                                             <span class="px-1 mt-1">entries</span>
                                         </div>
@@ -84,7 +84,7 @@
                                             <span class="px-1 mt-2">Search: </span>
                                             <input type="text" class="form-control form-control-sm mt-1 rounded"
                                                 id="query" name="query" aria-label="Recipient’s username"
-                                                aria-describedby="button-addon2">
+                                                aria-describedby="button-addon2" value="<%=search%>" onkeyup="searching()">
                                         </div>
 
                                     </div>
@@ -287,6 +287,16 @@
                 window.location = `/users/delete/${deleteId}`
             deleteId = null;
         }
+
+        const searching = () => {
+            let input = document.getElementById('query').value;
+            window.location.href = `/users?query=${encodeURIComponent(input)}&page=1`;
+        };
+
+        const chooseLimit = () => {
+        let select = document.getElementById('limit').value;
+        window.location.href = `/users?limit=${select}&page=1`;
+    }
 
     </script>
 
