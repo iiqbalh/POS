@@ -7,7 +7,7 @@ const { isLoggedIn } = require('../helper/util');
 /* GET users listing. */
 router.get('/', isLoggedIn, async function (req, res, next) {
   try {
-    let { page = 1, query = '', sortBy = 'id', sortMode = 'asc', limit = 3 } = req.query
+    let { page = 1, query = '', sortBy = 'userId', sortMode = 'asc', limit = 3 } = req.query
     const url = req.url == '/' ? `/?page=${page}&sortBy=${sortBy}&sortMode=${sortMode}` : req.url;
 
     const params = {};
@@ -16,9 +16,10 @@ router.get('/', isLoggedIn, async function (req, res, next) {
     if (query) {
       params['where'] = {
         ...params.where,
-        name: {
-          [Op.iLike]: `%${query}%`
-        }
+        [Op.or]: [
+        { email: { [Op.iLike]: `%${query}%` } },
+        { name: { [Op.iLike]: `%${query}%` } },
+      ]
       }
     }
 
@@ -53,20 +54,20 @@ router.get('/', isLoggedIn, async function (req, res, next) {
       url
     });
   } catch (e) {
-    res.status(500).json({ message: e.message })
+    console.log(e);
   }
 });
 
 router.get('/add', isLoggedIn, async function (req, res, next) {
   try {
     // res.status(200).json(users[0])
-    res.render('users/add', {});
+    res.render('users/add');
   } catch (e) {
     console.log(e);
   }
 });
 
-router.post('/add', async function (req, res, next) {
+router.post('/add', isLoggedIn, async function (req, res, next) {
   try {
     const { email, name, password, role } = req.body;
     const user = await User.create({ email, name, password, role })
@@ -76,7 +77,7 @@ router.post('/add', async function (req, res, next) {
   }
 });
 
-router.get('/edit/:id', async (req, res, next) => {
+router.get('/edit/:id', isLoggedIn, async (req, res, next) => {
   try {
     const user = await User.findByPk(req.params.id);
 
@@ -92,12 +93,13 @@ router.get('/edit/:id', async (req, res, next) => {
   }
 });
 
-router.post('/edit/:id', async (req, res, next) => {
+router.post('/edit/:id', isLoggedIn, async (req, res, next) => {
   try {
     const { email, name, role } = req.body;
     const { id } = req.params;
+    console.log(email, name, role, id)
 
-    const [updatedRows] = await User.update({ email, name, role }, { where: { id } });
+    const [updatedRows] = await User.update({ email, name, role }, { where: { userId: id } });
 
     if (updatedRows === 0) {
       console.log('error', 'User not found');
@@ -110,6 +112,23 @@ router.post('/edit/:id', async (req, res, next) => {
   } catch (err) {
     console.error(err);
     res.redirect('/users');
+  }
+});
+
+router.get('/delete/:id', isLoggedIn, async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    
+    await User.destroy({
+      where: {
+        userId: id
+      }
+    });
+    
+    res.redirect('/users');
+  } catch (err) {
+    console.error('Error deleting user:', err);
+    next(err);
   }
 });
 

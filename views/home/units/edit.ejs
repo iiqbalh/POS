@@ -28,7 +28,7 @@
     <div id="wrapper">
 
         <!-- Sidebar -->
-        <%- include('../partials/sidebar') %>
+        <%- include('../../partials/sidebar') %>
             <!-- End of Sidebar -->
 
             <!-- Content Wrapper -->
@@ -38,28 +38,28 @@
                 <div id="content">
 
                     <!-- Topbar -->
-                    <%- include('../partials/topbar') %>
+                    <%- include('../../partials/topbar') %>
                         <!-- End of Topbar -->
 
                         <!-- Begin Page Content -->
                         <div class="container-fluid">
 
                             <!-- Page Heading -->
-                            <h1 class="h3 mb-2 text-gray-800">Users</h1>
+                            <h1 class="h3 mb-2 text-gray-800">Units</h1>
 
                             <!-- Content Row -->
                             <div class="card shadow mb-4">
                                 <div class="card-header py-3">
-                                    <h6 class="m-0 font-weight-bold text-primary">Form add</h6>
+                                    <h6 class="m-0 font-weight-bold text-primary">Form edit</h6>
                                 </div>
                                 <form action="" method="post">
                                     <div class="card-body">
                                         <div class="table-responsive">
                                             <div class="row mb-3">
-                                                <label for="email" class="col-sm-2 col-form-label">Email</label>
+                                                <label for="unit" class="col-sm-2 col-form-label">Unit</label>
                                                 <div class="col-sm-10">
-                                                    <input type="email" name="email" id="add-email"
-                                                        class="form-control" placeholder="insert your email" value=""
+                                                    <input type="text" name="unit" id="add-unit"
+                                                        class="form-control" value="<%=data.unit%>"
                                                         required>
                                                 </div>
                                             </div>
@@ -68,34 +68,15 @@
                                                 <label for="name" class="col-sm-2 col-form-label">Name</label>
                                                 <div class="col-sm-10">
                                                     <input type="text" name="name" id="add-name"
-                                                        class="form-control" placeholder="insert your name" value=""
+                                                        class="form-control" value="<%=data.name%>"
                                                         required>
                                                 </div>
                                             </div>
 
                                             <div class="row mb-3">
-                                                <label for="password" class="col-sm-2 col-form-label">Password</label>
+                                                <label for="note" class="col-sm-2 col-form-label">Note</label>
                                                 <div class="col-sm-10">
-                                                    <input type="password" name="password" id="add-password"
-                                                        class="form-control" placeholder="insert your password" value=""
-                                                        required>
-                                                </div>
-                                            </div>
-
-                                            <div class="row mb-3">
-                                                <label for="role" class="col-sm-2 col-form-label">Role</label>
-                                                <div class="col-sm-8">
-                                                    <div class="form-check px-0">
-                                                        <input type="radio" class="form-input" name="role"
-                                                            value="operator" checked>
-                                                        <label for="role" class="form-label">Operator</label>
-                                                    </div>
-
-                                                    <div class="form-check px-0">
-                                                        <input type="radio" class="form-input" name="role"
-                                                            value="admin">
-                                                        <label for="role" class="form-label">Admin</label>
-                                                    </div>
+                                                    <textarea class="form-control" name="note" id="add-note" rows="3"><%=data.note%></textarea>
                                                 </div>
                                             </div>
                                         </div>
@@ -108,7 +89,7 @@
                                             <span class="text">Save</span>
                                         </button>
 
-                                        <a class="btn btn-warning btn-icon-split" href="/users">
+                                        <a class="btn btn-warning btn-icon-split" href="/dashboard/units">
                                             <span class="icon text-white-10">
                                                 <i class="fas fa-undo"></i>
                                             </span>
@@ -122,7 +103,7 @@
 
                 </div>
                 <!-- End of Main Content -->
-                <%- include('../partials/footer-content') %>
+                <%- include('../../partials/footer-content') %>
                     <!-- Footer -->
 
                     <!-- End of Footer -->
@@ -175,4 +156,4 @@
     <script src="/javascript/demo/chart-area-demo.js"></script>
     <script src="/javascript/demo/chart-pie-demo.js"></script>
 
-    <%- include('../partials/footer') %>
+    <%- include('../../partials/footer') %>

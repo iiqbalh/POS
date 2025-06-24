@@ -15,6 +15,12 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   User.init({
+    userId: {
+      allowNull: false,
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
     email: {
       type: DataTypes.STRING,
       allowNull: false
@@ -39,7 +45,7 @@ module.exports = (sequelize, DataTypes) => {
         user.password = generatePassword(user.password)
       }
     },
-    timestamps: true,
+    timestamps: false,
     createdAt: false,
     updatedAt: false,
   });
