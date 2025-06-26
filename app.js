@@ -7,10 +7,13 @@ var pg = require('pg');
 var app = express();
 var session = require('express-session')
 var flash = require('connect-flash');
+const fileUpload = require('express-fileupload');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var dashboardRouter = require('./routes/dashboard');
+var unitsRouter = require('./routes/units');
+var goodsRouter = require('./routes/goods');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -29,6 +32,7 @@ app.use(session({
 }));
 
 app.use(flash())
+app.use(fileUpload());
 
 app.use((req, res, next) => {
   res.locals.success_msg = req.flash('success_msg');
@@ -49,6 +53,8 @@ const pool = new Pool({
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/dashboard', dashboardRouter);
+app.use('/units', unitsRouter);
+app.use('/goods', goodsRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

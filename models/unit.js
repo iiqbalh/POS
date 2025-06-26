@@ -10,7 +10,9 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      Unit.belongsTo(models.Good, {
+        foreignKey: 'unit'
+      })
     }
   }
   Unit.init({
@@ -18,7 +20,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       autoIncrement: true,
       primaryKey: true,
-      type: DataTypes.INTEGER
+      type: DataTypes.STRING
     },
     name: DataTypes.STRING,
     note: DataTypes.TEXT
@@ -31,3 +33,5 @@ module.exports = (sequelize, DataTypes) => {
   });
   return Unit;
 };
+
+// npx sequelize-cli model:generate --name Good --attributes name:string,stock:integer,purchaseprice:numeric,sellingprice:numeric,unit:string,picture:text

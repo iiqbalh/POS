@@ -16,7 +16,6 @@ router.post('/', async (req, res, next) => {
   const { email, password } = req.body;
 
   try {
-    // Find user by email using Sequelize
     const user = await User.findOne({ where: { email } });
 
     if (!user) {
@@ -24,7 +23,6 @@ router.post('/', async (req, res, next) => {
       return res.redirect('/');
     }
 
-    // Compare password with bcrypt
     const isPasswordValid = bcrypt.compareSync(password, user.password);
 
     if (!isPasswordValid) {
@@ -32,10 +30,8 @@ router.post('/', async (req, res, next) => {
       return res.redirect('/');
     }
 
-    // Store user in session and redirect
     req.session.user = user;
     return res.redirect('dashboard');
-    res.status(201).json(user)
 
   } catch (err) {
     console.error(err);

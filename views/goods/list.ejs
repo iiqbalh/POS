@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>POS - <%=title%>
+    </title>
+
+    <!-- Custom fonts for this template-->
+    <link href="/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link
+        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+        rel="stylesheet">
+
+    <!-- Custom styles for this template-->
+    <link href="/stylesheets/sb-admin-2.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/stylesheets/style.css">
+
+</head>
+
+<body id="page-top">
+
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+
+        <!-- Sidebar -->
+        <%- include('../partials/sidebar') %>
+            <!-- End of Sidebar -->
+
+            <!-- Content Wrapper -->
+            <div id="content-wrapper" class="d-flex flex-column">
+
+                <!-- Main Content -->
+                <div id="content">
+
+                    <!-- Topbar -->
+                    <%- include('../partials/topbar') %>
+                        <!-- End of Topbar -->
+
+                        <!-- Begin Page Content -->
+                        <div class="container-fluid">
+
+                            <!-- Page Heading -->
+                            <h1 class="h3 mb-2 text-gray-800">Goods</h1>
+                            <p class="mb-4">This is data of Goods</p>
+
+                            <!-- Content Row -->
+                            <div class="card shadow mb-4">
+                                <div class="card-header py-3">
+                                    <a class="btn btn-primary btn-icon-split" href="/goods/add">
+                                        <span class="icon text-white-10">
+                                            <i class="fas fa-plus"></i>
+                                        </span>
+                                        <span class="text">Add</span>
+                                    </a>
+                                </div>
+
+                                <form class="mt-3 mx-3" method="get">
+                                    <input type="hidden" name="page" value="1">
+                                    <input type="hidden" name="sortBy" value="<%= sortBy %>">
+                                    <input type="hidden" name="sortMode" value="<%= sortMode %>">
+
+                                    <div class="row d-flex justify-content-between p-1">
+
+                                        <div class="d-flex justify-content-between mt-2">
+                                            <span class="px-1 mt-1">Show</span>
+                                            <select type="text" id="limit" name="limit"
+                                                class="custom-select custom-select-sm form-control form-control-sm"
+                                                aria-label="Default select example" onchange="chooseLimit()">
+                                                <option value="3" <%=limit==3 ? 'selected' : '' %>>3</option>
+                                                <option value="10" <%=limit==10 ? 'selected' : '' %>>10</option>
+                                                <option value="100" <%=limit==100 ? 'selected' : '' %>>100</option>
+                                            </select>
+                                            <span class="px-1 mt-1">entries</span>
+                                        </div>
+
+                                        <div class="input-group w-25">
+                                            <span class="px-1 mt-2">Search: </span>
+                                            <input type="text" class="form-control form-control-sm mt-1 rounded"
+                                                id="query" name="query" aria-label="Recipient’s username"
+                                                aria-describedby="button-addon2" value="<%=search%>"
+                                                onkeyup="searching()">
+                                        </div>
+
+                                    </div>
+
+                                </form>
+
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                            <thead>
+                                                <tr>
+                                                    <th>
+                                                        <a
+                                                            href="/goods<%= url.replace(`sortBy=${sortBy}`, `sortBy=barcode`).replace(`sortMode=${sortMode}`, `sortMode=${sortMode == 'asc' ? 'desc' : 'asc'}`)%>">Barcode<i
+                                                                class="fas fa-<%= sortBy == 'barcode' ? sortMode=='desc' ? 'sort-down' : 'sort-up' : 'sort' %> float-right"></i></a>
+                                                    </th>
+                                                    <th>
+                                                        <a
+                                                            href="/goods<%= url.replace(`sortBy=${sortBy}`, `sortBy=name`).replace(`sortMode=${sortMode}`, `sortMode=${sortMode == 'asc' ? 'desc' : 'asc'}`)%>">Name<i
+                                                                class="fas fa-<%= sortBy == 'name' ? sortMode=='desc' ? 'sort-down' : 'sort-up' : 'sort' %> float-right"></i></a>
+                                                    </th>
+                                                    <th>
+                                                        <a
+                                                            href="/goods<%= url.replace(`sortBy=${sortBy}`, `sortBy=stock`).replace(`sortMode=${sortMode}`, `sortMode=${sortMode == 'asc' ? 'desc' : 'asc'}`)%>">Stock<i
+                                                                class="fas fa-<%= sortBy == 'stock' ? sortMode=='desc' ? 'sort-down' : 'sort-up' : 'sort' %> float-right"></i></a>
+                                                    </th>
+                                                    <th>
+                                                        <a
+                                                            href="/goods<%= url.replace(`sortBy=${sortBy}`, `sortBy=unit`).replace(`sortMode=${sortMode}`, `sortMode=${sortMode == 'asc' ? 'desc' : 'asc'}`)%>">Unit<i
+                                                                class="fas fa-<%= sortBy == 'unit' ? sortMode=='desc' ? 'sort-down' : 'sort-up' : 'sort' %> float-right"></i></a>
+                                                    </th>
+                                                    <th>
+                                                        <a
+                                                            href="/goods<%= url.replace(`sortBy=${sortBy}`, `sortBy=purchaseprice`).replace(`sortMode=${sortMode}`, `sortMode=${sortMode == 'asc' ? 'desc' : 'asc'}`)%>">Purchase
+                                                            Price<i
+                                                                class="fas fa-<%= sortBy == 'purchaseprice' ? sortMode=='desc' ? 'sort-down' : 'sort-up' : 'sort' %> float-right"></i></a>
+                                                    </th>
+                                                    <th>
+                                                        <a
+                                                            href="/goods<%= url.replace(`sortBy=${sortBy}`, `sortBy=sellingprice`).replace(`sortMode=${sortMode}`, `sortMode=${sortMode == 'asc' ? 'desc' : 'asc'}`)%>">Selling
+                                                            Price<i
+                                                                class="fas fa-<%= sortBy == 'sellingprice' ? sortMode=='desc' ? 'sort-down' : 'sort-up' : 'sort' %> float-right"></i></a>
+                                                    </th>
+                                                    <th>Picture</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tfoot>
+                                                <tr>
+                                                    <th>Barcode</th>
+                                                    <th>Name</th>
+                                                    <th>Stock</th>
+                                                    <th>Unit</th>
+                                                    <th>Purchase Price</th>
+                                                    <th>Selling Price</th>
+                                                    <th>Picture</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </tfoot>
+                                            <tbody>
+                                                <%data.forEach((item, index)=>{%>
+                                                    <tr>
+                                                        <td>
+                                                            <%=item.barcode%>
+                                                        </td>
+                                                        <td>
+                                                            <%=item.name%>
+                                                        </td>
+                                                        <td>
+                                                            <%=item.stock%>
+                                                        </td>
+                                                        <td>
+                                                            <%=item.unit%>
+                                                        </td>
+                                                        <td>
+                                                            <%=RpInd(item.purchaseprice)%>
+                                                        </td>
+                                                        <td>
+                                                            <%=RpInd(item.sellingprice)%>
+                                                        </td>
+                                                        <td>
+                                                            <Image src="/images/pictures/<%=item.picture%>" alt="picture" width="100" height="120"/>
+                                                        </td>
+                                                        <td>
+                                                            <a href="/goods/edit/<%=item.barcode%>"
+                                                                class="btn btn-success btn-circle">
+                                                                <i class="fas fa-info-circle"></i>
+                                                            </a>
+                                                            <button class="btn btn-danger btn-circle"
+                                                                onclick="showDelete(`<%=item.barcode%>`)">
+                                                                <i class="fas fa-trash"></i>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                    <%})%>
+                                            </tbody>
+                                        </table>
+
+                                        <div class="float-left mt-2">
+                                            <%if(offset==0) {%>
+                                                <span>Showing <%=offset + 1%> to <%=limit%> of <%=count%> entries
+                                                </span>
+                                                <%} else {%>
+                                                    <span class="mx-3 mt-2">Showing <%=offset + 1%> to <%=(limit +
+                                                                offset)>= count ? count : limit + offset%> of <%=count%>
+                                                                    entries</span>
+                                                    <%}%>
+                                        </div>
+
+                                        <div class="float-right">
+                                            <nav aria-label="Page navigation example">
+                                                <ul class="pagination">
+                                                    <%if(page> 1){%>
+                                                        <li class="page-item"><a class="page-link"
+                                                                href="/goods<%=url.replace(`page=${page}`, `page=${Number(page) - 1}`)%>">Previous</a>
+                                                        </li>
+                                                        <%}%>
+
+                                                            <% for(let i=1; i <=pages; i++) { %>
+                                                                <li class="page-item <%= i == page ? ' active' : '' %>">
+                                                                    <a class="page-link"
+                                                                        href="/goods<%=url.replace(`page=${page}`, `page=${i}`)%>">
+                                                                        <%=i%>
+                                                                    </a>
+                                                                </li>
+                                                                <%}%>
+
+                                                                    <%if(page< pages){%>
+                                                                        <li class="page-item"><a class="page-link"
+                                                                                href="/goods<%=url.replace(`page=${page}`, `page=${Number(page) + 1}`)%>">Next</a>
+                                                                        </li>
+                                                                        <%}%>
+                                                </ul>
+                                            </nav>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <!-- /.container-fluid -->
+
+                </div>
+                <!-- End of Main Content -->
+                <%- include('../partials/footer-content') %>
+                    <!-- Footer -->
+
+                    <!-- End of Footer -->
+
+            </div>
+            <!-- End of Content Wrapper -->
+
+    </div>
+    <!-- End of Page Wrapper -->
+
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+
+    <!-- Delete Modal -->
+    <div class="modal" tabindex="-1" id="deleteModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Deleted Confirmation</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure, You want delete it?
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <a class="btn btn-secondary" href="">No</a>
+                    <button type="button" class="btn btn-primary" onclick="deleteData()">Yes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logout Modal-->
+    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Do you want to Leave?</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">Select Logout to end your session</div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                    <a class="btn btn-primary" href="/logout">Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap core JavaScript-->
+    <script src="/vendor/jquery/jquery.min.js"></script>
+    <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Core plugin JavaScript-->
+    <script src="/vendor/jquery-easing/jquery.easing.min.js"></script>
+
+    <!-- Custom scripts for all pages-->
+    <script src="/javascript/sb-admin-2.min.js"></script>
+
+    <!-- Page level plugins -->
+    <script src="/vendor/chart.js/Chart.min.js"></script>
+
+    <!-- Page level custom scripts -->
+    <script src="/javascript/demo/chart-area-demo.js"></script>
+    <script src="/javascript/demo/chart-pie-demo.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/script.js"></script>
+    <script>
+        var deleteId = null;
+        function showDelete(id) {
+            deleteId = id;
+            const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            modal.show();
+        }
+
+        function deleteData() {
+            if (deleteId)
+                window.location = `/goods/delete/${deleteId}`
+            deleteId = null;
+        }
+
+        const searching = () => {
+            let input = document.getElementById('query').value;
+            let select = document.getElementById('limit').value;
+            window.location.href = `/goods?query=${encodeURIComponent(input)}&page=1&sortBy=unit&sortMode=asc&limit=${select}`;
+        };
+
+        const chooseLimit = () => {
+            let select = document.getElementById('limit').value;
+            let input = document.getElementById('query').value;
+            window.location.href = `/goods?limit=${select}&page=1&sortBy=unit&sortMode=asc&query=${encodeURIComponent(input)}`;
+        }
+
+    </script>
+
+    <%- include('../partials/footer') %>

@@ -19,6 +19,7 @@
 
     <!-- Custom styles for this template-->
     <link href="/stylesheets/sb-admin-2.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/stylesheets/style.css">
 
 </head>
 
@@ -28,7 +29,7 @@
     <div id="wrapper">
 
         <!-- Sidebar -->
-        <%- include('../../partials/sidebar') %>
+        <%- include('../partials/sidebar') %>
             <!-- End of Sidebar -->
 
             <!-- Content Wrapper -->
@@ -38,47 +39,101 @@
                 <div id="content">
 
                     <!-- Topbar -->
-                    <%- include('../../partials/topbar') %>
+                    <%- include('../partials/topbar') %>
                         <!-- End of Topbar -->
 
                         <!-- Begin Page Content -->
                         <div class="container-fluid">
 
                             <!-- Page Heading -->
-                            <h1 class="h3 mb-2 text-gray-800">Units</h1>
+                            <h1 class="h3 mb-2 text-gray-800">Goods</h1>
 
                             <!-- Content Row -->
                             <div class="card shadow mb-4">
                                 <div class="card-header py-3">
-                                    <h6 class="m-0 font-weight-bold text-primary">Form add</h6>
+                                    <h6 class="m-0 font-weight-bold text-primary">
+                                        <%=title%>
+                                    </h6>
                                 </div>
-                                <form action="" method="post">
+                                <form action="" method="post" encType="multipart/form-data">
                                     <div class="card-body">
                                         <div class="table-responsive">
                                             <div class="row mb-3">
-                                                <label for="unit" class="col-sm-2 col-form-label">Unit</label>
+                                                <label for="email" class="col-sm-2 col-form-label">Barcode</label>
                                                 <div class="col-sm-10">
-                                                    <input type="text" name="unit" id="add-unit"
-                                                        class="form-control" value=""
-                                                        required>
+                                                    <input type="text" name="barcode" id="add-barcode"
+                                                        class="form-control" value="<%=data.barcode%>" required>
                                                 </div>
                                             </div>
 
                                             <div class="row mb-3">
                                                 <label for="name" class="col-sm-2 col-form-label">Name</label>
                                                 <div class="col-sm-10">
-                                                    <input type="text" name="name" id="add-name"
-                                                        class="form-control" value=""
+                                                    <input type="text" name="name" id="add-name" class="form-control"
+                                                        value="<%=data.name%>" required>
+                                                </div>
+                                            </div>
+
+                                            <div class="row mb-3">
+                                                <label for="stock" class="col-sm-2 col-form-label">Stock</label>
+                                                <div class="col-sm-10">
+                                                    <input type="number" name="stock" id="add-stock"
+                                                        class="form-control" value="<%=data.stock%>" placeholder="0"
                                                         required>
                                                 </div>
                                             </div>
 
                                             <div class="row mb-3">
-                                                <label for="note" class="col-sm-2 col-form-label">Note</label>
+                                                <label for="purchaseprice" class="col-sm-2 col-form-label">Purchase
+                                                    Price</label>
                                                 <div class="col-sm-10">
-                                                    <textarea class="form-control" name="note" id="add-note" rows="3"></textarea>
+                                                    <input type="number" name="purchaseprice" id="add-purchaseprice"
+                                                        class="form-control" value="<%=data.purchaseprice%>"
+                                                        placeholder="0" required>
                                                 </div>
                                             </div>
+
+                                            <div class="row mb-3">
+                                                <label for="sellingprice" class="col-sm-2 col-form-label">Selling
+                                                    Price</label>
+                                                <div class="col-sm-10">
+                                                    <input type="number" name="sellingprice" id="add-sellingprice"
+                                                        class="form-control" value="<%=data.sellingprice%>"
+                                                        placeholder="0" required>
+                                                </div>
+                                            </div>
+
+                                            <div class="row mb-3">
+                                                <label for="unit" class="col-sm-2 col-form-label">Unit</label>
+                                                <div class="col-sm-10">
+                                                    <select name="unit" id="add-unit" class="form-control">
+                                                        <%unit.forEach(item => {%>
+                                                        <option value="<%=item.unit%>" <%=data.unit=='pcs' ? ' selected' : '' %>
+                                                            ><%=item.note%></option>
+                                                            <%})%>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="row mb-3">
+                                                <label for="picture" class="col-sm-2 col-form-label">Picture</label>
+                                                <div class="col-sm-10">
+                                                    <input class="form-control" type="file" id="add-picture"
+                                                        name="picture" value="">
+                                                </div>
+                                            </div>
+
+                                            <%if(data.picture) {%>
+                                                <div class="row mb-3">
+                                                    <label for="avatar" class="col-sm-2 col-form-label">preview</label>
+                                                    <div class="col-sm-10">
+                                                        <img id="img-picture"
+                                                            src="/images/pictures/<%= data.picture ? data.picture : ''%>"
+                                                            alt="avatar" width="300px">
+                                                    </div>
+                                                </div>
+                                                <%}%>
+
                                         </div>
                                     </div>
                                     <div class="card-footer">
@@ -89,7 +144,7 @@
                                             <span class="text">Save</span>
                                         </button>
 
-                                        <a class="btn btn-warning btn-icon-split" href="/dashboard/units">
+                                        <a class="btn btn-warning btn-icon-split" href="/goods">
                                             <span class="icon text-white-10">
                                                 <i class="fas fa-undo"></i>
                                             </span>
@@ -103,7 +158,7 @@
 
                 </div>
                 <!-- End of Main Content -->
-                <%- include('../../partials/footer-content') %>
+                <%- include('../partials/footer-content') %>
                     <!-- Footer -->
 
                     <!-- End of Footer -->
@@ -156,4 +211,10 @@
     <script src="/javascript/demo/chart-area-demo.js"></script>
     <script src="/javascript/demo/chart-pie-demo.js"></script>
 
-    <%- include('../../partials/footer') %>
+    <script>
+        document.getElementById('add-picture').addEventListener('change', function (event) {
+            document.getElementById('img-picture').src = URL.createObjectURL(event.target.files[0])
+        })
+    </script>
+
+    <%- include('../partials/footer') %>

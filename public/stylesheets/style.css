@@ -7,3 +7,7 @@ a:hover {
   color: #858796;
   text-decoration: none;
 }
+
+img {
+  object-fit: cover;
+}

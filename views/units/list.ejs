@@ -30,7 +30,7 @@
     <div id="wrapper">
 
         <!-- Sidebar -->
-        <%- include('../../partials/sidebar') %>
+        <%- include('../partials/sidebar') %>
             <!-- End of Sidebar -->
 
             <!-- Content Wrapper -->
@@ -40,7 +40,7 @@
                 <div id="content">
 
                     <!-- Topbar -->
-                    <%- include('../../partials/topbar') %>
+                    <%- include('../partials/topbar') %>
                         <!-- End of Topbar -->
 
                         <!-- Begin Page Content -->
@@ -53,7 +53,7 @@
                             <!-- Content Row -->
                             <div class="card shadow mb-4">
                                 <div class="card-header py-3">
-                                    <a class="btn btn-primary btn-icon-split" href="/dashboard/units/add">
+                                    <a class="btn btn-primary btn-icon-split" href="/units/add">
                                         <span class="icon text-white-10">
                                             <i class="fas fa-plus"></i>
                                         </span>
@@ -98,15 +98,15 @@
                                             <thead>
                                                 <tr>
                                                     <th>
-                                                        <a href="/dashboard<%= url.replace(`sortBy=${sortBy}`, `sortBy=unit`).replace(`sortMode=${sortMode}`, `sortMode=${sortMode == 'asc' ? 'desc' : 'asc'}`)%>">Unit<i 
+                                                        <a href="/units<%= url.replace(`sortBy=${sortBy}`, `sortBy=unit`).replace(`sortMode=${sortMode}`, `sortMode=${sortMode == 'asc' ? 'desc' : 'asc'}`)%>">Unit<i 
                                                             class="fas fa-<%= sortBy == 'unit' ? sortMode=='desc' ? 'sort-down' : 'sort-up' : 'sort' %> float-right"></i></a>
                                                     </th>
                                                     <th>
-                                                        <a href="/dashboard<%= url.replace(`sortBy=${sortBy}`, `sortBy=name`).replace(`sortMode=${sortMode}`, `sortMode=${sortMode == 'asc' ? 'desc' : 'asc'}`)%>">Name<i 
+                                                        <a href="/units<%= url.replace(`sortBy=${sortBy}`, `sortBy=name`).replace(`sortMode=${sortMode}`, `sortMode=${sortMode == 'asc' ? 'desc' : 'asc'}`)%>">Name<i 
                                                             class="fas fa-<%= sortBy == 'name' ? sortMode=='desc' ? 'sort-down' : 'sort-up' : 'sort' %> float-right"></i></a>
                                                     </th>
                                                     <th>
-                                                        <a href="/dashboard<%= url.replace(`sortBy=${sortBy}`, `sortBy=note`).replace(`sortMode=${sortMode}`, `sortMode=${sortMode == 'asc' ? 'desc' : 'asc'}`)%>">Note<i 
+                                                        <a href="/units<%= url.replace(`sortBy=${sortBy}`, `sortBy=note`).replace(`sortMode=${sortMode}`, `sortMode=${sortMode == 'asc' ? 'desc' : 'asc'}`)%>">Note<i 
                                                             class="fas fa-<%= sortBy == 'note' ? sortMode=='desc' ? 'sort-down' : 'sort-up' : 'sort' %> float-right"></i></a>
                                                     </th>
                                                     <th>Action</th>
@@ -133,7 +133,7 @@
                                                             <%=item.note%>
                                                         </td>
                                                         <td>
-                                                            <a href="/dashboard/units/edit/<%=item.unit%>"
+                                                            <a href="/units/edit/<%=item.unit%>"
                                                                 class="btn btn-success btn-circle">
                                                                 <i class="fas fa-info-circle"></i>
                                                             </a>
@@ -163,14 +163,14 @@
                                                 <ul class="pagination">
                                                     <%if(page> 1){%>
                                                         <li class="page-item"><a class="page-link"
-                                                                href="/dashboard<%=url.replace(`page=${page}`, `page=${Number(page) - 1}`)%>">Previous</a>
+                                                                href="/units<%=url.replace(`page=${page}`, `page=${Number(page) - 1}`)%>">Previous</a>
                                                         </li>
                                                         <%}%>
 
                                                             <% for(let i=1; i <=pages; i++) { %>
                                                                 <li class="page-item <%= i == page ? ' active' : '' %>">
                                                                     <a class="page-link"
-                                                                        href="/dashboard<%=url.replace(`page=${page}`, `page=${i}`)%>">
+                                                                        href="/units<%=url.replace(`page=${page}`, `page=${i}`)%>">
                                                                         <%=i%>
                                                                     </a>
                                                                 </li>
@@ -178,7 +178,7 @@
 
                                                                     <%if(page< pages){%>
                                                                         <li class="page-item"><a class="page-link"
-                                                                                href="/dashboard<%=url.replace(`page=${page}`, `page=${Number(page) + 1}`)%>">Next</a>
+                                                                                href="/units<%=url.replace(`page=${page}`, `page=${Number(page) + 1}`)%>">Next</a>
                                                                         </li>
                                                                         <%}%>
                                                 </ul>
@@ -193,7 +193,7 @@
 
                 </div>
                 <!-- End of Main Content -->
-                <%- include('../../partials/footer-content') %>
+                <%- include('../partials/footer-content') %>
                     <!-- Footer -->
 
                     <!-- End of Footer -->
@@ -280,22 +280,22 @@
 
         function deleteData() {
             if (deleteId)
-                window.location = `/dashboard/units/delete/${deleteId}`
+                window.location = `/units/delete/${deleteId}`
             deleteId = null;
         }
 
         const searching = () => {
             let input = document.getElementById('query').value;
             let select = document.getElementById('limit').value;
-            window.location.href = `/dashboard/units?query=${encodeURIComponent(input)}&page=1&sortBy=unit&sortMode=asc&limit=${select}`;
+            window.location.href = `/units?query=${encodeURIComponent(input)}&page=1&sortBy=unit&sortMode=asc&limit=${select}`;
         };
 
         const chooseLimit = () => {
             let select = document.getElementById('limit').value;
             let input = document.getElementById('query').value;
-            window.location.href = `/dashboard/units?limit=${select}&page=1&sortBy=unit&sortMode=asc&query=${encodeURIComponent(input)}`;
+            window.location.href = `/units?limit=${select}&page=1&sortBy=unit&sortMode=asc&query=${encodeURIComponent(input)}`;
         }
 
     </script>
 
-    <%- include('../../partials/footer') %>
+    <%- include('../partials/footer') %>
