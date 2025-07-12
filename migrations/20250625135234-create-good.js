@@ -18,19 +18,19 @@ module.exports = {
       },
       purchaseprice: {
         allowNull: false,
-        type: Sequelize.NUMERIC(19,2)
+        type: Sequelize.NUMERIC(19, 2)
       },
       sellingprice: {
         allowNull: false,
-        type: Sequelize.NUMERIC(19,2)
+        type: Sequelize.NUMERIC(19, 2)
       },
       unit: {
         allowNull: false,
         type: Sequelize.STRING(10),
         references: {
-        model: 'Units',
-        key: 'unit'
-      }
+          model: 'Units',
+          key: 'unit'
+        }
       },
       picture: {
         type: Sequelize.TEXT

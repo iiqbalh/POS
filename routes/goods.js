@@ -82,19 +82,23 @@ router.post('/add', isLoggedIn, async function (req, res, next) {
     const fileName = `${Date.now()}-${filePicture.name}`
     const uploadPath = path.join(__dirname, '..', 'public', 'images', 'pictures', fileName);
 
-    await filePicture.mv(uploadPath)
+    await filePicture.mv(uploadPath, function (err) {
 
-    Good.create({
-      barcode,
-      name,
-      stock,
-      purchaseprice,
-      sellingprice,
-      unit,
-      picture: fileName
-    });
+      if (err)
+        return res.status(500).send(err);
 
-    res.redirect('/goods');
+      Good.create({
+        barcode,
+        name,
+        stock,
+        purchaseprice,
+        sellingprice,
+        unit,
+        picture: fileName
+      });
+
+      res.redirect('/goods');
+    })
   } catch (e) {
     console.log(e);
   }
@@ -126,11 +130,11 @@ router.post('/edit/:id', isLoggedIn, async (req, res, next) => {
 
     let fileName = picture;
 
-     if (req.files && req.files.picture) {
+    if (req.files && req.files.picture) {
       const filePicture = req.files.picture;
       fileName = `${Date.now()}-${filePicture.name}`;
       const uploadPath = path.join(__dirname, '..', 'public', 'images', 'pictures', fileName);
-      
+
       await filePicture.mv(uploadPath);
     }
 

@@ -43,6 +43,7 @@ router.post('/', async (req, res, next) => {
 router.post('/register', async function (req, res, next) {
   try {
     const { email, name, password, role } = req.body;
+    console.log(req.body)
     const user = await User.create({ email, name, password, role })
     res.status(201).json(user)
   } catch (e) {

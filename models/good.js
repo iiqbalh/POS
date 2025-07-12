@@ -13,6 +13,9 @@ module.exports = (sequelize, DataTypes) => {
       Good.hasMany(models.Unit, {
         foreignKey: 'unit'
       })
+      Good.hasMany(models.Purchaseitem, {
+        foreignKey: 'itemcode'
+      })
     }
   }
   Good.init({
@@ -43,7 +46,8 @@ module.exports = (sequelize, DataTypes) => {
       references: {
         model: 'Units',
         key: 'unit'
-      }
+      },
+      onDelete: 'SET NULL'
     },
     picture: DataTypes.TEXT
   }, {

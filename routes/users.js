@@ -60,7 +60,6 @@ router.get('/', isLoggedIn, async function (req, res, next) {
 
 router.get('/add', isLoggedIn, async function (req, res, next) {
   try {
-    // res.status(200).json(users[0])
     res.render('users/add');
   } catch (e) {
     console.log(e);

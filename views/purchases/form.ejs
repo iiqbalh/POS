@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>POS - Purchase</title>
+
+    <!-- Custom fonts for this template-->
+    <link href="/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link
+        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+        rel="stylesheet">
+
+    <!-- Custom styles for this template-->
+    <link href="/stylesheets/sb-admin-2.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+
+</head>
+
+<body id="page-top">
+
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+
+        <!-- Sidebar -->
+        <%- include('../partials/sidebar') %>
+            <!-- End of Sidebar -->
+
+            <!-- Content Wrapper -->
+            <div id="content-wrapper" class="d-flex flex-column">
+
+                <!-- Main Content -->
+                <div id="content">
+
+                    <!-- Topbar -->
+                    <%- include('../partials/topbar') %>
+                        <!-- End of Topbar -->
+
+                        <!-- Begin Page Content -->
+                        <div class="container-fluid">
+
+                            <!-- Page Heading -->
+                            <h1 class="h3 mb-2 text-gray-800">Purchases</h1>
+
+                            <!-- Content Row -->
+                            <div class="card shadow mb-4">
+                                <div class="card-header py-3">
+                                    <h1 class="h3 mb-2 text-gray-800">Transaction</h1>
+                                </div>
+                                <form id="add-purchase">
+                                    <div class="card-body border-bottom pb-5">
+                                        <div class="table-responsive">
+                                            <div class="row">
+                                                <div class="col-sm-4">
+                                                    <label for="invoice" class="form-label">Invoice</label>
+                                                    <input type="text" name="invoice" id="invoice" class="form-control"
+                                                        value="" disabled>
+                                                </div>
+
+                                                <div class="col-sm-4">
+                                                    <label for="time" class="form-label">Time</label>
+                                                    <input type="text" name="time" id="time" class="form-control"
+                                                        value="" disabled>
+                                                </div>
+
+                                                <div class="col-sm-4">
+                                                    <label for="operator" class="form-label">Operator</label>
+                                                    <input type="text" name="operator" id="operator"
+                                                        class="form-control" value="<%=name%>" disabled>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="card-body border-bottom pb-5">
+                                        <div class="table-responsive">
+                                            <div class="row pb-3">
+                                                <div class="col-sm-4">
+                                                    <label for="goods-barcode" class="form-label">Goods Barcode</label>
+                                                    <select name="goods-barcode" id="goods-barcode"
+                                                        class="form-control">
+                                                        <%goods.forEach(item=> {%>
+                                                            <option value="<%=item.barcode%>"
+                                                                <%=data.barcode==item.barcode ? ' selected' : '' %>
+                                                                ><%=item.barcode%> - <%=item.name%>
+                                                            </option>
+                                                            <%})%>
+                                                    </select>
+                                                </div>
+
+                                                <div class="col-sm-4">
+                                                    <label for="goods-name" class="form-label">Goods Name</label>
+                                                    <input type="text" name="goods-name" id="goods-name"
+                                                        class="form-control" value="<%=goods.name%>" disabled>
+                                                </div>
+
+                                                <div class="col-sm-4">
+                                                    <label for="stock" class="form-label">Stock</label>
+                                                    <input type="text" name="stock" id="stock" class="form-control"
+                                                        value="<%=goods.stock%>" disabled>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-sm-4">
+                                                    <label for="purchase-price" class="form-label">Purchase
+                                                        Price</label>
+                                                    <input type="text" name="purchase-price" id="purchase-price"
+                                                        class="form-control"
+                                                        value="<%=RpInd(goods.purchaseprice) ? '' : RpInd(goods.purchaseprice)%>"
+                                                        required>
+                                                </div>
+
+                                                <div class="col-sm-4">
+                                                    <label for="qty" class="form-label">Qty</label>
+                                                    <input type="number" step="0" name="qty" id="qty"
+                                                        class="form-control" value="" required>
+                                                </div>
+
+                                                <div class="col-sm-4">
+                                                    <label for="total-price" class="form-label">Total Price</label>
+                                                    <input type="text" name="total-price" id="total-price"
+                                                        class="form-control"
+                                                        value="<%=RpInd(goods.purchaseprice) ? '' : RpInd(goods.purchaseprice)%>"
+                                                        required>
+                                                </div>
+                                            </div>
+                                            <button class="btn btn-primary btn-icon-split mt-3" type="submit">
+                                                <span class="icon text-white-10">
+                                                    <i class="fas fa-plus"></i>
+                                                </span>
+                                                <span class="text">Add</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+
+                                <form id="add-purchaseitem">
+                                    <div class="card-body px-0 overflow-x-auto">
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>No.</th>
+                                                    <th>Barcode</th>
+                                                    <th>Name</th>
+                                                    <th>Qty</th>
+                                                    <th>Price</th>
+                                                    <th>Total Price</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="table-content">
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    <div class="card-footer">
+                                        <div class="table-responsive">
+                                            <div class="row mb-3">
+                                                <label for="total-summary" class="col-sm-2 col-form-label">Total
+                                                    Summary</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" name="total-summary" id="total-summary"
+                                                        class="form-control" value="<%=data.totalsum%>" required>
+                                                </div>
+                                            </div>
+
+                                            <div class="row mb-3">
+                                                <label for="supplier" class="col-sm-2 col-form-label">Supplier</label>
+                                                <div class="col-sm-10">
+                                                    <select name="supplier" id="supplier" class="form-control">
+                                                        <%suppliers.forEach(item=> {%>
+                                                            <option value="<%=item.supplierId%>">
+                                                                <%=item.name%>
+                                                            </option>
+                                                            <%})%>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button class="btn btn-success btn-icon-split" type="submit">
+                                            <span class="icon">
+                                                <i class="fas fa-plus"></i>
+                                            </span>
+                                            <span class="text">Finish</span>
+                                        </button>
+
+                                        <a class="btn btn-warning btn-icon-split" href="/purchases">
+                                            <span class="icon text-white-10">
+                                                <i class="fas fa-arrow-left"></i>
+                                            </span>
+                                            <span class="text">Back</span>
+                                        </a>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <!-- /.container-fluid -->
+
+                </div>
+                <!-- End of Main Content -->
+                <%- include('../partials/footer-content') %>
+                    <!-- Footer -->
+
+                    <!-- End of Footer -->
+
+            </div>
+            <!-- End of Content Wrapper -->
+
+    </div>
+    <!-- End of Page Wrapper -->
+
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+
+    <!-- Logout Modal-->
+    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Do you want to Leave?</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">Select Logout to end your session</div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                    <a class="btn btn-primary" href="/logout">Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap core JavaScript-->
+    <script src="/vendor/jquery/jquery.min.js"></script>
+    <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Core plugin JavaScript-->
+    <script src="/vendor/jquery-easing/jquery.easing.min.js"></script>
+
+    <!-- Custom scripts for all pages-->
+    <script src="/javascript/sb-admin-2.min.js"></script>
+
+    <!-- Page level plugins -->
+    <script src="/vendor/chart.js/Chart.min.js"></script>
+
+    <!-- Page level custom scripts -->
+    <script src="/javascript/demo/chart-area-demo.js"></script>
+    <script src="/javascript/demo/chart-pie-demo.js"></script>
+
+    <%- include('../partials/footer') %>
+        <script>
+
+
+
+            document.addEventListener('DOMContentLoaded', function () {
+                // Initialize form elements
+                const addPurchaseForm = document.getElementById('add-purchase');
+                const addPurchaseItemForm = document.getElementById('add-purchaseitem');
+                const goodsBarcodeSelect = document.getElementById('goods-barcode');
+                const goodsNameInput = document.getElementById('goods-name');
+                const stockInput = document.getElementById('stock');
+                const purchasePriceInput = document.getElementById('purchase-price');
+                const qtyInput = document.getElementById('qty');
+                const totalPriceInput = document.getElementById('total-price');
+                const invoiceInput = document.getElementById('invoice');
+                const timeInput = document.getElementById('time');
+                const totalSummaryInput = document.getElementById('total-summary');
+                const tableContent = document.getElementById('table-content');
+
+                // Initialize purchase data
+                let currentPurchase = null;
+                let purchaseItems = [];
+
+                // Fetch goods data when barcode selection changes
+                goodsBarcodeSelect.addEventListener('change', async function () {
+                    const barcode = this.value;
+                    try {
+                        const response = await fetch(`http://localhost:3000/purchases/${barcode}`);
+                        const goods = await response.json();
+
+                        goodsNameInput.value = goods.name;
+                        stockInput.value = goods.stock;
+                        purchasePriceInput.value = goods.purchaseprice;
+                        qtyInput.value = '' || 1;
+                        totalPriceInput.value = '' ;
+                    } catch (error) {
+                        console.error('Error fetching goods:', error);
+                    }
+                });
+
+                // Calculate total price when quantity changes
+                qtyInput.addEventListener('input', function () {
+                    const price = parseFloat(purchasePriceInput.value) || 0;
+                    const qty = parseInt(this.value) || 0;
+                    totalPriceInput.value = (price * 1 || qty).toFixed(2);
+                });
+
+                // Initialize new purchase
+                async function initNewPurchase() {
+                    try {
+                    const response = await fetch(`http://localhost:3000/purchases/add/generate-invoice`);
+                    if (!response.ok) throw new Error('Failed to generate invoice');
+
+                    const invoice = await response.json();
+                    currentPurchase = invoice;
+                    invoiceInput.value = invoice;
+
+                    // Set current time
+                    timeInput.value = moment().format('DD MMM YYYY HH:mm:ss');
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Failed to generate invoice number');
+                }
+                    //
+                    // try {
+                    //     const response = await fetch('http://localhost:3000/purchases', {
+                    //         method: 'POST',
+                    //         headers: {
+                    //             'Content-Type': 'application/json',
+                    //         },
+                    //         body: JSON.stringify({
+                    //             operator: document.getElementById('operator').value
+                    //         })
+                    //     });
+
+                    //     currentPurchase = await response.json();
+                    //     invoiceInput.value = currentPurchase.invoice;
+                    //     timeInput.value = new Date(currentPurchase.time).toLocaleString();
+                    // } catch (error) {
+                    //     console.error('Error initializing purchase:', error);
+                    // }
+                }
+
+                // Add item to purchase
+                addPurchaseForm.addEventListener('submit', async function (e) {
+                    e.preventDefault();
+
+                    if (!currentPurchase) {
+                        await initNewPurchase();
+                    }
+
+                    const barcode = goodsBarcodeSelect.value;
+                    const qty = parseInt(qtyInput.value);
+
+                    try {
+                        const response = await fetch(`http://localhost:3000/purchases/${currentPurchase}/items`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                itemcode: barcode,
+                                quantity: qty
+                            })
+                        });
+
+                        let item = await response.json();
+                        purchaseItems.push(item);
+                        timeInput.value = new Date(currentPurchase.time).toLocaleString();
+                        updatePurchaseItemsTable();
+                        updateTotalSummary();
+
+                        // Reset form
+                        qtyInput.value = '';
+                        totalPriceInput.value = '';
+                    } catch (error) {
+                        console.error('Error adding item:', error);
+                    }
+                });
+
+                // Finish purchase
+                addPurchaseItemForm.addEventListener('submit', async function (e) {
+                    e.preventDefault();
+
+                    const supplierId = document.getElementById('supplier').value;
+
+                    try {
+                        await fetch(`http://localhost:3000/purchases/${currentPurchase.invoice}`, {
+                            method: 'PATCH',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                supplierId
+                            })
+                        });
+
+                        window.location.href = '/purchases';
+                    } catch (error) {
+                        console.error('Error finishing purchase:', error);
+                    }
+                });
+
+                // Update purchase items table
+                function updatePurchaseItemsTable() {
+                    tableContent.innerHTML = '';
+
+                    purchaseItems.forEach((item, index) => {
+                        const row = document.createElement('tr');
+
+                        row.innerHTML = `
+        <td>${index + 1}</td>
+        <td>${item.itemcode}</td>
+        <td>${goodsBarcodeSelect.options[goodsBarcodeSelect.selectedIndex].text.split(' - ')[1]}</td>
+        <td>${item.quantity}</td>
+        <td>${item.purchaseprice.toFixed(2)}</td>
+        <td>${item.totalprice.toFixed(2)}</td>
+      `;
+
+                        tableContent.appendChild(row);
+                    });
+                }
+
+                // Update total summary
+                function updateTotalSummary() {
+                    const total = purchaseItems.reduce((sum, item) => sum + item.totalprice, 0);
+                    totalSummaryInput.value = total.toFixed(2);
+                }
+
+                // Initialize the purchase when page loads
+                initNewPurchase();
+            });
+
+
+
+
+            // async function generateInvoice() {
+            //     try {
+            //         const response = await fetch(`http://localhost:3000/purchases/add/generate-invoice`);
+            //         if (!response.ok) throw new Error('Failed to generate invoice');
+
+            //         const invoice = await response.json();
+            //         document.getElementById('invoice').value = invoice;
+
+            //         // Set current time
+            //         const now = moment();
+            //         document.getElementById('time').value = now.format('DD MMM YYYY HH:mm:ss');
+            //     } catch (error) {
+            //         console.error('Error:', error);
+            //         alert('Failed to generate invoice number');
+            //     }
+            // }
+
+            // document.addEventListener('DOMContentLoaded', generateInvoice);
+
+
+            //saveData
+            // const saveData = async () => {
+            //     try {
+            //         const invoice = document.getElementById('invoice').value;
+            //         const time = document.getElementById('time').value;
+            //         const operator = document.getElementById('operator').value;
+            //         const itemcode = document.getElementById('invoice').value;
+            //         const quantity = document.getElementById('quantity').value;
+            //         const purchaseprice = document.getElementById('purchaseprice').value;
+            //         const totalprice = document.getElementById('totalprice').value;
+
+            //         const response = await fetch("http://localhost:3000/purchases/add", {
+            //             method: "PUT",
+            //             headers: {
+            //                 "Content-Type": "application/json"
+            //             },
+            //             body: JSON.stringify({ invoice, time, operator, itemcode, quantity, purchaseprice, totalprice })
+            //         });
+
+            //         // document.getElementById('invoice').value = "";
+            //         // document.getElementById('time').value = "";
+            //         // document.getElementById('operator').value = "";
+            //         loadData();
+            //     } catch (e) {
+            //         console.log(e, "data gagal ditambah")
+            //     }
+            // }
+
+            // document.getElementById('add-purchase').addEventListener('submit', function (e) {
+            //     e.preventDefault();
+            //     saveData()
+            // });
+        </script>
