@@ -260,56 +260,29 @@
 
     <%- include('../partials/footer') %>
         <script>
+            // Initialize variables
+            let currentPurchase = null;
+            let purchaseItems = [];
 
+            // DOM Elements
+            const goodsBarcodeSelect = document.getElementById('goods-barcode');
+            const goodsNameInput = document.getElementById('goods-name');
+            const stockInput = document.getElementById('stock');
+            const purchasePriceInput = document.getElementById('purchase-price');
+            const qtyInput = document.getElementById('qty');
+            const totalPriceInput = document.getElementById('total-price');
+            const invoiceInput = document.getElementById('invoice');
+            const timeInput = document.getElementById('time');
+            const totalSummaryInput = document.getElementById('total-summary');
+            const tableContent = document.getElementById('table-content');
+            const addPurchaseForm = document.getElementById('add-purchase');
+            const addPurchaseItemForm = document.getElementById('add-purchaseitem');
 
+            // Initialize purchase when page loads
+            const initNewPurchase = async () => {
+                try {
+                    const response = await fetch('http://localhost:3000/purchases/generate-invoice');
 
-            document.addEventListener('DOMContentLoaded', function () {
-                // Initialize form elements
-                const addPurchaseForm = document.getElementById('add-purchase');
-                const addPurchaseItemForm = document.getElementById('add-purchaseitem');
-                const goodsBarcodeSelect = document.getElementById('goods-barcode');
-                const goodsNameInput = document.getElementById('goods-name');
-                const stockInput = document.getElementById('stock');
-                const purchasePriceInput = document.getElementById('purchase-price');
-                const qtyInput = document.getElementById('qty');
-                const totalPriceInput = document.getElementById('total-price');
-                const invoiceInput = document.getElementById('invoice');
-                const timeInput = document.getElementById('time');
-                const totalSummaryInput = document.getElementById('total-summary');
-                const tableContent = document.getElementById('table-content');
-
-                // Initialize purchase data
-                let currentPurchase = null;
-                let purchaseItems = [];
-
-                // Fetch goods data when barcode selection changes
-                goodsBarcodeSelect.addEventListener('change', async function () {
-                    const barcode = this.value;
-                    try {
-                        const response = await fetch(`http://localhost:3000/purchases/${barcode}`);
-                        const goods = await response.json();
-
-                        goodsNameInput.value = goods.name;
-                        stockInput.value = goods.stock;
-                        purchasePriceInput.value = goods.purchaseprice;
-                        qtyInput.value = '' || 1;
-                        totalPriceInput.value = '' ;
-                    } catch (error) {
-                        console.error('Error fetching goods:', error);
-                    }
-                });
-
-                // Calculate total price when quantity changes
-                qtyInput.addEventListener('input', function () {
-                    const price = parseFloat(purchasePriceInput.value) || 0;
-                    const qty = parseInt(this.value) || 0;
-                    totalPriceInput.value = (price * 1 || qty).toFixed(2);
-                });
-
-                // Initialize new purchase
-                async function initNewPurchase() {
-                    try {
-                    const response = await fetch(`http://localhost:3000/purchases/add/generate-invoice`);
                     if (!response.ok) throw new Error('Failed to generate invoice');
 
                     const invoice = await response.json();
@@ -322,169 +295,142 @@
                     console.error('Error:', error);
                     alert('Failed to generate invoice number');
                 }
-                    //
-                    // try {
-                    //     const response = await fetch('http://localhost:3000/purchases', {
-                    //         method: 'POST',
-                    //         headers: {
-                    //             'Content-Type': 'application/json',
-                    //         },
-                    //         body: JSON.stringify({
-                    //             operator: document.getElementById('operator').value
-                    //         })
-                    //     });
+            };
 
-                    //     currentPurchase = await response.json();
-                    //     invoiceInput.value = currentPurchase.invoice;
-                    //     timeInput.value = new Date(currentPurchase.time).toLocaleString();
-                    // } catch (error) {
-                    //     console.error('Error initializing purchase:', error);
-                    // }
+            // Fetch goods data when barcode changes
+            const loadGoodsData = async () => {
+                const barcode = goodsBarcodeSelect.value;
+                try {
+                    const response = await fetch(`http://localhost:3000/purchases/${barcode}`);
+                    const goods = await response.json();
+
+                    goodsNameInput.value = goods.name;
+                    stockInput.value = goods.stock;
+                    purchasePriceInput.value = goods.purchaseprice;
+                    qtyInput.value = 1;
+                    totalPriceInput.value = (goods.purchaseprice * 1).toFixed(2);
+                } catch (error) {
+                    console.error('Error fetching goods:', error);
+
+                    goodsNameInput.value = '';
+                    stockInput.value = '';
+                    purchasePriceInput.value = '';
+                    qtyInput.value = '';
+                    totalPriceInput.value = '';
+                }
+            };
+
+            // Calculate total price
+            const calculateTotalPrice = () => {
+                const price = parseFloat(purchasePriceInput.value) || 0;
+                const qty = parseInt(qtyInput.value) || 0;
+                totalPriceInput.value = (price * qty).toFixed(2);
+            };
+
+            // Add item to purchase
+            const addPurchaseItem = async (e) => {
+                e.preventDefault();
+
+                if (!currentPurchase) {
+                    await initNewPurchase();
                 }
 
-                // Add item to purchase
-                addPurchaseForm.addEventListener('submit', async function (e) {
-                    e.preventDefault();
+                const barcode = goodsBarcodeSelect.value;
+                const qty = parseInt(qtyInput.value);
+                const purchasePrice = Number(purchasePriceInput.value);
+                const totalPrice = Number(totalPriceInput.value);
 
-                    if (!currentPurchase) {
-                        await initNewPurchase();
-                    }
-
-                    const barcode = goodsBarcodeSelect.value;
-                    const qty = parseInt(qtyInput.value);
-
-                    try {
-                        const response = await fetch(`http://localhost:3000/purchases/${currentPurchase}/items`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({
-                                itemcode: barcode,
-                                quantity: qty
-                            })
-                        });
-
-                        let item = await response.json();
-                        purchaseItems.push(item);
-                        timeInput.value = new Date(currentPurchase.time).toLocaleString();
-                        updatePurchaseItemsTable();
-                        updateTotalSummary();
-
-                        // Reset form
-                        qtyInput.value = '';
-                        totalPriceInput.value = '';
-                    } catch (error) {
-                        console.error('Error adding item:', error);
-                    }
-                });
-
-                // Finish purchase
-                addPurchaseItemForm.addEventListener('submit', async function (e) {
-                    e.preventDefault();
-
-                    const supplierId = document.getElementById('supplier').value;
-
-                    try {
-                        await fetch(`http://localhost:3000/purchases/${currentPurchase.invoice}`, {
-                            method: 'PATCH',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({
-                                supplierId
-                            })
-                        });
-
-                        window.location.href = '/purchases';
-                    } catch (error) {
-                        console.error('Error finishing purchase:', error);
-                    }
-                });
-
-                // Update purchase items table
-                function updatePurchaseItemsTable() {
-                    tableContent.innerHTML = '';
-
-                    purchaseItems.forEach((item, index) => {
-                        const row = document.createElement('tr');
-
-                        row.innerHTML = `
-        <td>${index + 1}</td>
-        <td>${item.itemcode}</td>
-        <td>${goodsBarcodeSelect.options[goodsBarcodeSelect.selectedIndex].text.split(' - ')[1]}</td>
-        <td>${item.quantity}</td>
-        <td>${item.purchaseprice.toFixed(2)}</td>
-        <td>${item.totalprice.toFixed(2)}</td>
-      `;
-
-                        tableContent.appendChild(row);
+                try {
+                    const response = await fetch(`http://localhost:3000/purchases/${currentPurchase}/items`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            itemcode: barcode,
+                            quantity: qty,
+                            purchaseprice: purchasePrice,
+                            totalprice: totalPrice
+                        })
                     });
-                }
 
-                // Update total summary
-                function updateTotalSummary() {
-                    const total = purchaseItems.reduce((sum, item) => sum + item.totalprice, 0);
-                    totalSummaryInput.value = total.toFixed(2);
-                }
+                    const item = await response.json();
+                    purchaseItems.push(item);
+                    updatePurchaseItemsTable();
+                    updateTotalSummary();
 
-                // Initialize the purchase when page loads
+                    // Reset form
+                    qtyInput.value = '';
+                    totalPriceInput.value = '';
+                } catch (error) {
+                    console.error('Error adding item:', error);
+                }
+            };
+
+            // Finish purchase
+            const finishPurchase = async (e) => {
+                e.preventDefault();
+
+                const supplierId = document.getElementById('supplier').value;
+
+                try {
+                    await fetch(`http://localhost:3000/purchases/${currentPurchase}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            supplierId
+                        })
+                    });
+
+                    window.location.href = '/purchases';
+                } catch (error) {
+                    console.error('Error finishing purchase:', error);
+                }
+            };
+
+            // Update purchase items table
+    const updatePurchaseItemsTable = () => {
+        tableContent.innerHTML = '';
+
+        purchaseItems.forEach((item, index) => {
+            const row = document.createElement('tr');
+
+            // Safely format prices with fallback to 0 if undefined
+            const purchasePrice = item.purchaseprice ? Number(item.purchaseprice).toFixed(2) : '0.00';
+            const totalPrice = item.totalprice ? Number(item.totalprice).toFixed(2) : '0.00';
+            const itemName = goodsBarcodeSelect.options[goodsBarcodeSelect.selectedIndex]?.text?.split(' - ')[1] || 'Unknown';
+
+            row.innerHTML = `
+                <td>${index + 1}</td>
+                <td>${item.itemcode || ''}</td>
+                <td>${itemName}</td>
+                <td>${item.quantity || 0}</td>
+                <td>${purchasePrice}</td>
+                <td>${totalPrice}</td>
+            `;
+
+            tableContent.appendChild(row);
+        });
+    };
+
+    // Update total summary
+    const updateTotalSummary = () => {
+        const total = purchaseItems.reduce((sum, item) => {
+            return sum + (item.totalprice ? Number(item.totalprice) : 0);
+        }, 0);
+        totalSummaryInput.value = total.toFixed(2);
+    };
+
+            // Event Listeners
+            goodsBarcodeSelect.addEventListener('change', loadGoodsData);
+            qtyInput.addEventListener('input', calculateTotalPrice);
+            addPurchaseForm.addEventListener('submit', addPurchaseItem);
+            addPurchaseItemForm.addEventListener('submit', finishPurchase);
+
+            // Initialize the purchase when page loads
+            document.addEventListener('DOMContentLoaded', () => {
                 initNewPurchase();
             });
-
-
-
-
-            // async function generateInvoice() {
-            //     try {
-            //         const response = await fetch(`http://localhost:3000/purchases/add/generate-invoice`);
-            //         if (!response.ok) throw new Error('Failed to generate invoice');
-
-            //         const invoice = await response.json();
-            //         document.getElementById('invoice').value = invoice;
-
-            //         // Set current time
-            //         const now = moment();
-            //         document.getElementById('time').value = now.format('DD MMM YYYY HH:mm:ss');
-            //     } catch (error) {
-            //         console.error('Error:', error);
-            //         alert('Failed to generate invoice number');
-            //     }
-            // }
-
-            // document.addEventListener('DOMContentLoaded', generateInvoice);
-
-
-            //saveData
-            // const saveData = async () => {
-            //     try {
-            //         const invoice = document.getElementById('invoice').value;
-            //         const time = document.getElementById('time').value;
-            //         const operator = document.getElementById('operator').value;
-            //         const itemcode = document.getElementById('invoice').value;
-            //         const quantity = document.getElementById('quantity').value;
-            //         const purchaseprice = document.getElementById('purchaseprice').value;
-            //         const totalprice = document.getElementById('totalprice').value;
-
-            //         const response = await fetch("http://localhost:3000/purchases/add", {
-            //             method: "PUT",
-            //             headers: {
-            //                 "Content-Type": "application/json"
-            //             },
-            //             body: JSON.stringify({ invoice, time, operator, itemcode, quantity, purchaseprice, totalprice })
-            //         });
-
-            //         // document.getElementById('invoice').value = "";
-            //         // document.getElementById('time').value = "";
-            //         // document.getElementById('operator').value = "";
-            //         loadData();
-            //     } catch (e) {
-            //         console.log(e, "data gagal ditambah")
-            //     }
-            // }
-
-            // document.getElementById('add-purchase').addEventListener('submit', function (e) {
-            //     e.preventDefault();
-            //     saveData()
-            // });
         </script>
