@@ -51,6 +51,9 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'Purchaseitem',
+    timestamps: false,
+    createdAt: false,
+    updatedAt: false,
   });
   return Purchaseitem;
 };

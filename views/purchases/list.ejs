@@ -199,17 +199,16 @@
     <script src="/vendor/jquery-easing/jquery.easing.min.js"></script>
 
     <!-- Custom scripts for all pages-->
-    <script src="/javascript/sb-admin-2.min.js"></script>
+    <script src="/javascripts/sb-admin-2.min.js"></script>
 
     <!-- Page level plugins -->
     <script src="/vendor/chart.js/Chart.min.js"></script>
 
     <!-- Page level custom scripts -->
-    <script src="/javascript/demo/chart-area-demo.js"></script>
-    <script src="/javascript/demo/chart-pie-demo.js"></script>
+    <script src="/javascripts/demo/chart-area-demo.js"></script>
+    <script src="/javascripts/demo/chart-pie-demo.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="/script.js"></script>
     <script>
         var modal = new bootstrap.Modal(document.getElementById('deleteModal'));
         var deleteId = null;
@@ -224,54 +223,54 @@
             modal.show();
         }
 
-        // loadData
-        const loadData = async () => {
-            try {
-                const searchParams = new URLSearchParams(params);
-                const response = await fetch(`http://localhost:3000/purchases?${searchParams}`, {
-                    method: "GET"
-                });
+        // // loadData
+        // const loadData = async () => {
+        //     try {
+        //         const searchParams = new URLSearchParams(params);
+        //         const response = await fetch(`http://localhost:3000/purchases?${searchParams}`, {
+        //             method: "GET"
+        //         });
 
-                const purchases = await response.json();
-                let html = '';
+        //         const purchases = await response.json();
+        //         let html = '';
 
-                purchases.data.forEach((item, index) => {
-                    html += `
-                            <tr>
-                                <td>
-                                    ${item.invoice}
-                                </td>
-                                <td>
-                                    ${item.time}
-                                </td>
-                                <td>
-                                    ${item.totalsum}
-                                </td>
-                                <td>
-                                    ${item.supplier}
-                                </td>
-                                <td>
-                                    <a href="/purchases/edit/${item.invoice}"
-                                        class="btn btn-success btn-circle">
-                                        <i class="fas fa-info-circle"></i>
-                                    </a>
-                                    <button class="btn btn-danger btn-circle"
-                                        onclick="showDelete(${item.invoice})">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                               </td>
-                            </tr>
-                            `
-                });
+        //         purchases.data.forEach((item, index) => {
+        //             html += `
+        //                     <tr>
+        //                         <td>
+        //                             ${item.invoice}
+        //                         </td>
+        //                         <td>
+        //                             ${item.time}
+        //                         </td>
+        //                         <td>
+        //                             ${item.totalsum}
+        //                         </td>
+        //                         <td>
+        //                             ${item.supplier}
+        //                         </td>
+        //                         <td>
+        //                             <a href="/purchases/edit/${item.invoice}"
+        //                                 class="btn btn-success btn-circle">
+        //                                 <i class="fas fa-info-circle"></i>
+        //                             </a>
+        //                             <button class="btn btn-danger btn-circle"
+        //                                 onclick="showDelete(${item.invoice})">
+        //                                 <i class="fas fa-trash"></i>
+        //                             </button>
+        //                        </td>
+        //                     </tr>
+        //                     `
+        //         });
 
-                document.getElementById('table-content').innerHTML = html;
-                // params = { ...params, page: purchases.page, pages: purchases.pages };
-            } catch (e) {
-                console.log(e, "data gagal diload")
-            }
-        };
+        //         document.getElementById('table-content').innerHTML = html;
+        //         // params = { ...params, page: purchases.page, pages: purchases.pages };
+        //     } catch (e) {
+        //         console.log(e, "data gagal diload")
+        //     }
+        // };
 
-        loadData()
+        // loadData()
 
         // function deleteData() {
         //     if (deleteId)

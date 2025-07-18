@@ -60,13 +60,13 @@
                                                 <div class="col-sm-4">
                                                     <label for="invoice" class="form-label">Invoice</label>
                                                     <input type="text" name="invoice" id="invoice" class="form-control"
-                                                        value="" disabled>
+                                                        value="<%=purchases?.invoice%>" disabled>
                                                 </div>
 
                                                 <div class="col-sm-4">
                                                     <label for="time" class="form-label">Time</label>
                                                     <input type="text" name="time" id="time" class="form-control"
-                                                        value="" disabled>
+                                                        value="<%=purchases.time%>" disabled>
                                                 </div>
 
                                                 <div class="col-sm-4">
@@ -113,7 +113,7 @@
                                                         Price</label>
                                                     <input type="text" name="purchase-price" id="purchase-price"
                                                         class="form-control"
-                                                        value="<%=RpInd(goods.purchaseprice) ? '' : RpInd(goods.purchaseprice)%>"
+                                                        value="<%=goods.purchaseprice%>"
                                                         required>
                                                 </div>
 
@@ -127,7 +127,7 @@
                                                     <label for="total-price" class="form-label">Total Price</label>
                                                     <input type="text" name="total-price" id="total-price"
                                                         class="form-control"
-                                                        value="<%=RpInd(goods.purchaseprice) ? '' : RpInd(goods.purchaseprice)%>"
+                                                        value="<%=RpInd(goods.purchaseprice)%>"
                                                         required>
                                                 </div>
                                             </div>
@@ -155,7 +155,16 @@
                                                 </tr>
                                             </thead>
                                             <tbody id="table-content">
-
+                                                <%if(purchaseitems.length==0){%>
+                                                    <tr>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td>no items</td>
+                                                        <td></td>
+                                                        <td></td>
+                                                    </tr>
+                                                    <%}%>
                                             </tbody>
                                         </table>
                                     </div>
@@ -176,8 +185,9 @@
                                                 <div class="col-sm-10">
                                                     <select name="supplier" id="supplier" class="form-control">
                                                         <%suppliers.forEach(item=> {%>
-                                                            <option value="<%=item.supplierId%>">
-                                                                <%=item.name%>
+                                                            <option value="<%=item.supplierId%>" 
+                                                                <%=purchases.suppliers==item.supplier ? ' selected' : '' %>
+                                                                ><%=item.name%>
                                                             </option>
                                                             <%})%>
                                                     </select>
@@ -249,14 +259,14 @@
     <script src="/vendor/jquery-easing/jquery.easing.min.js"></script>
 
     <!-- Custom scripts for all pages-->
-    <script src="/javascript/sb-admin-2.min.js"></script>
+    <script src="/javascripts/sb-admin-2.min.js"></script>
 
     <!-- Page level plugins -->
     <script src="/vendor/chart.js/Chart.min.js"></script>
 
     <!-- Page level custom scripts -->
-    <script src="/javascript/demo/chart-area-demo.js"></script>
-    <script src="/javascript/demo/chart-pie-demo.js"></script>
+    <script src="/javascripts/demo/chart-area-demo.js"></script>
+    <script src="/javascripts/demo/chart-pie-demo.js"></script>
 
     <%- include('../partials/footer') %>
         <script>
@@ -279,6 +289,9 @@
             const addPurchaseForm = document.getElementById('add-purchase');
             const addPurchaseItemForm = document.getElementById('add-purchaseitem');
 
+
+            let currentPurchaseItems = [];
+
             // Initialize purchase when page loads
             const generateInvoice = async () => {
                 try {
@@ -289,23 +302,15 @@
                     if (!response.ok) throw new Error('Failed to generate invoice');
 
                     const data = await response.json();
+                    console.log(data)
                     invoiceInput.value = data.invoice;
                     timeInput.value = moment().format('DD MMM YYYY HH:mm:ss');
 
-                    let html = ''
-                    data.purchaseitems.forEach(item => {
-                        html += `
-                        <tr>
-                            <td>${item.id}</td>
-                            <td>${item.invoice}</td>
-                            <td>${item.itemcode}</td>
-                            <td>${item.quantity}</td>
-                            <td>${item.purchaseprice}</td>
-                            <td>${item.totalprice}</td>
-                        </tr>    
-                        `
-                    });
-                    tableContent.appendChild(html);
+                    if (data.purchaseitems && data.purchaseitems.length > 0) {
+                        currentPurchaseItems = data.purchaseitems;
+                        updatePurchaseItemsTable();
+                        updateTotalSummary();
+                    }
 
                 } catch (error) {
                     console.error('Error:', error);
@@ -313,45 +318,51 @@
                 }
             };
 
-            generateInvoice()
+            // Update purchase items table
+            const updatePurchaseItemsTable = () => {
+                tableContent.innerHTML = '';
 
+                currentPurchaseItems.forEach((item, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+            <td>${index + 1}</td>
+            <td>${item.itemcode}</td>
+            <td>${item.name || goodsNameInput.value}</td>
+            <td>${item.quantity}</td>
+            <td>${item.purchaseprice}</td>
+            <td>${item.totalprice}</td>
+            <td>
+                <button class="btn btn-danger btn-circle" onclick="deleteItem(${item.id})">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        `;
+                    tableContent.append(row);
+                });
+            };
 
-            //SaveData
-            const addPurchaseItems = async () => {
+            // Update total summary
+            const updateTotalSummary = () => {
+                const total = currentPurchaseItems.reduce((sum, item) => sum + item.totalprice, 0);
+                totalSummaryInput.value = total.toFixed(2);
+            };
+
+            // Delete item
+            const deleteItem = async (id) => {
                 try {
-                    const invoice = invoiceInput.value;
-                    const time = timeInput.value;
-                    const operator = operatorInput.value;
-                    const itemcode = goodsNameInput.value;
-                    const stock = stockInput.value;
-                    const purchaseprice = purchasePriceInput.value;
-                    const qty = qtyInput.value;
-                    const totalprice = totalPriceInput.value;
-                    const totalsum = totalSummaryInput.value;
-                    const supplier = suppliersSelect.value;
-
-                    const response = await fetch("http://localhost:3000/purchases/add", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({
-                            invoice,
-                            time,
-                            operator,
-                            totalsum,
-                            supplier,
-                            itemcode,
-                            stock,
-                            purchaseprice,
-                            qty,
-                            totalprice
-                        })
+                    const response = await fetch(`http://localhost:3000/purchases/items/${id}`, {
+                        method: "DELETE"
                     });
-                } catch (e) {
-                    console.log(e, "data gagal ditambah")
+
+                    if (response.ok) {
+                        currentPurchaseItems = currentPurchaseItems.filter(item => item.id !== id);
+                        updatePurchaseItemsTable();
+                        updateTotalSummary();
+                    }
+                } catch (error) {
+                    console.error('Error deleting item:', error);
                 }
-            }
+            };
 
             // Fetch goods data when barcode changes
             const loadGoodsData = async () => {
@@ -361,17 +372,25 @@
                         method: "GET"
                     });
                     const goods = await response.json();
-                    console.log(goods, barcode)
 
                     goodsNameInput.value = goods.name;
                     stockInput.value = goods.stock;
-                    purchasePriceInput.value = `${goods.purchaseprice}`;
+                    purchasePriceInput.value = goods.purchaseprice;
                     qtyInput.value = 1;
                     totalPriceInput.value = (goods.purchaseprice * 1).toFixed(2);
-                    // updateTotalSummary();
                 } catch (error) {
                     console.error('Error fetching goods:', error);
+                    resetGoodsForm();
                 }
+            };
+
+            // Reset goods form
+            const resetGoodsForm = () => {
+                goodsNameInput.value = '';
+                stockInput.value = '';
+                purchasePriceInput.value = '';
+                qtyInput.value = '';
+                totalPriceInput.value = '';
             };
 
             // Calculate total price
@@ -380,6 +399,150 @@
                 const qty = parseInt(qtyInput.value) || 0;
                 totalPriceInput.value = (price * qty).toFixed(2);
             };
+
+            // Add item to purchase
+            const addPurchaseItem = async (e) => {
+                e.preventDefault();
+
+                try {
+                    const invoice = invoiceInput.value;
+                    const itemcode = goodsBarcodeSelect.value;
+                    const quantity = parseInt(qtyInput.value);
+                    const purchaseprice = parseFloat(purchasePriceInput.value);
+                    const totalprice = parseFloat(totalPriceInput.value);
+                    const supplier = suppliersSelect.value;
+
+                    const response = await fetch("http://localhost:3000/purchases/items/add", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            invoice,
+                            itemcode,
+                            quantity,
+                            purchaseprice,
+                            totalprice,
+                            supplier
+                        })
+                    });
+
+                    if (response.ok) {
+                        const newItem = await response.json();
+                        currentPurchaseItems.push(newItem);
+                        updatePurchaseItemsTable();
+                        updateTotalSummary();
+                        resetGoodsForm();
+                    }
+                } catch (error) {
+                    console.error('Error adding item:', error);
+                }
+            };
+
+            // Complete purchase
+            const finishPurchase = async (e) => {
+                e.preventDefault();
+
+                try {
+                    const invoice = invoiceInput.value;
+                    const supplierId = suppliersSelect.value;
+                    const totalsum = parseFloat(totalSummaryInput.value);
+
+                    const response = await fetch("http://localhost:3000/purchases/finish", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            invoice,
+                            supplierId,
+                            totalsum
+                        })
+                    });
+
+                    if (response.ok) {
+                        window.location.href = '/purchases';
+                    }
+                } catch (error) {
+                    console.error('Error completing purchase:', error);
+                }
+            };
+
+            // Event listeners
+            goodsBarcodeSelect.addEventListener('change', loadGoodsData);
+            qtyInput.addEventListener('input', calculateTotalPrice);
+            addPurchaseItemForm.addEventListener('submit', addPurchaseItem);
+            addPurchaseForm.addEventListener('submit', finishPurchase);
+
+            generateInvoice()
+
+            window.deleteItem = deleteItem;
+
+
+            //SaveData
+            // const addPurchaseItems = async () => {
+            //     try {
+            //         const invoice = invoiceInput.value;
+            //         const time = timeInput.value;
+            //         const operator = operatorInput.value;
+            //         const itemcode = goodsNameInput.value;
+            //         const stock = stockInput.value;
+            //         const purchaseprice = purchasePriceInput.value;
+            //         const quantity = qtyInput.value;
+            //         const totalprice = totalPriceInput.value;
+            //         const totalsum = totalSummaryInput.value;
+            //         const supplier = suppliersSelect.value;
+
+            //         const response = await fetch("http://localhost:3000/purchases/add", {
+            //             method: "POST",
+            //             headers: {
+            //                 "Content-Type": "application/json"
+            //             },
+            //             body: JSON.stringify({
+            //                 invoice,
+            //                 time,
+            //                 operator,
+            //                 totalsum,
+            //                 supplier,
+            //                 itemcode,
+            //                 stock,
+            //                 purchaseprice,
+            //                 quantity,
+            //                 totalprice
+            //             })
+            //         });
+            //     } catch (e) {
+            //         console.log(e, "data gagal ditambah")
+            //     }
+            // }
+
+            // // Fetch goods data when barcode changes
+            // const loadGoodsData = async () => {
+            //     const barcode = goodsBarcodeSelect.value;
+            //     try {
+            //         const response = await fetch(`http://localhost:3000/purchases/${barcode}`, {
+            //             method: "GET"
+            //         });
+            //         const goods = await response.json();
+            //         console.log(goods, barcode)
+
+            //         goodsNameInput.value = goods.name;
+            //         stockInput.value = goods.stock;
+            //         purchasePriceInput.value = `${goods.purchaseprice}`;
+            //         qtyInput.value = 1;
+            //         totalPriceInput.value = (goods.purchaseprice * 1).toFixed(2);
+            //         // updateTotalSummary();
+            //     } catch (error) {
+            //         console.error('Error fetching goods:', error);
+            //     }
+            // };
+
+            // // Calculate total price
+            // const calculateTotalPrice = () => {
+            //     const price = parseFloat(purchasePriceInput.value) || 0;
+            //     const qty = parseInt(qtyInput.value) || 0;
+            //     totalPriceInput.value = (price * qty).toFixed(2);
+            // };
 
 
             // //Add item to purchase
@@ -479,12 +642,12 @@
             // };
 
             // Event Listeners
-            goodsBarcodeSelect.addEventListener('change', loadGoodsData);
-            qtyInput.addEventListener('input', calculateTotalPrice);
-            addPurchaseItemForm.addEventListener('submit', function (e) {
-                e.preventDefault();
-                addPurchaseItems()
-            });
+            // goodsBarcodeSelect.addEventListener('change', loadGoodsData);
+            // qtyInput.addEventListener('input', calculateTotalPrice);
+            // addPurchaseItemForm.addEventListener('submit', function (e) {
+            //     e.preventDefault();
+            //     addPurchaseItems()
+            // });
             // addPurchaseForm .addEventListener('submit', finishPurchase);
 
             // Initialize the purchase when page loads

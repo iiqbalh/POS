@@ -53,7 +53,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       onDelete: 'RESTRICT'
     }
-  },
+  }, 
   {
     sequelize,
     modelName: 'Purchase',
