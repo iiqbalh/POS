@@ -42,14 +42,27 @@ router.get('/invoice', async (req, res) => {
         if (lastInvoice) {
             const lastSeq = parseInt(lastInvoice.invoice.split('-')[2]);
             seq = lastSeq + 1;
+            console.log(seq)
         }
 
         const invoice = `INV-${today}-${seq}`;
+
+        // Get existing items with goods names
+        const purchaseitems = await Purchaseitem.findAll({
+            where: { invoice },
+            include: [{
+                model: Good,
+                attributes: ['name']
+            }]
+        });
         
         res.json({
             invoice,
             operator: req.session.user.name,
-            purchaseitems: []
+            purchaseitems: purchaseitems.map(item => ({
+                ...item.toJSON(),
+                name: item.Good.name
+            }))
         });
     } catch (error) {
         console.error('Error generating invoice:', error);
@@ -79,27 +92,24 @@ router.get('/:barcode', async (req, res) => {
 // Add item to purchase
 router.post('/items/add', async (req, res) => {
   try {
-    const { invoice, itemcode, quantity, purchaseprice, totalprice, supplier } = req.body;
+    const { invoice, itemcode, quantity, purchaseprice, totalprice } = req.body;
 
-    // 1. Verify or create the purchase record first
+    
     const [purchase] = await Purchase.findOrCreate({
       where: { invoice },
       defaults: {
-        // Include other required purchase fields
         date: new Date(),
-        operator: req.session.user.userId, // Modify as needed
-        supplier: supplier,
-        totalsum: 0 // Will be updated by trigger
+        operator: req.session.user.userId
       }
     });
 
-    // 2. Check if goods exists
+    
     const goods = await Good.findOne({ where: { barcode: itemcode } });
     if (!goods) {
       return res.status(404).json({ error: 'Goods not found' });
     }
 
-    // 3. Create purchase item
+    
     const item = await Purchaseitem.create({
       invoice,
       itemcode,
@@ -108,7 +118,15 @@ router.post('/items/add', async (req, res) => {
       totalprice
     });
 
-    res.json(item);
+    res.json({
+            id: item.id,
+            invoice: item.invoice,
+            itemcode: item.itemcode,
+            name: goods.name,
+            quantity: item.quantity,
+            purchaseprice: item.purchaseprice,
+            totalprice: item.totalprice
+        });
   } catch (error) {
     console.error('Error:', error);
     res.status(500).json({ 
@@ -153,9 +171,9 @@ router.post('/finish', async (req, res) => {
         
         await Purchase.upsert({
             invoice,
-            supplierId,
+            supplier: Number(supplierId),
             totalsum,
-            operator: req.session.user.name
+            operator: req.session.user.userId
         });
 
         res.json({ success: true });
@@ -166,11 +184,6 @@ router.post('/finish', async (req, res) => {
 });
 
 //list
-router.get('/', function (req, res, next) {
-  res.render('purchases/list', { title: 'Purchases' })
-});
-
-
 router.get('/', isLoggedIn, async function (req, res, next) {
   try {
 
@@ -205,60 +218,14 @@ router.get('/', isLoggedIn, async function (req, res, next) {
     params['offset'] = offset
 
 
-    //invoice
-    const today = moment().format('YYYYMMDD');
-    const lastInvoice = await Purchase.findOne({
-      where: {
-        invoice: {
-          [Op.like]: `INV-${today}-%`
-        }
-      },
-      order: [['invoice', 'ASC']]
-    });
-
-    let seq = 1;
-    if (lastInvoice) {
-      const lastSeq = parseInt(lastInvoice.invoice.split('-')[2]);
-      seq = lastSeq + 1;
-    }
-
-    const inv = `INV-${today}-${seq}`;
     const dataPurchases = await Purchase.findAll(params);
-    const dataPurchaseItems = await Purchaseitem.findAll();
 
-    res.status(200).json(
-      {
-        purchases: dataPurchases,
-        purchaseitems: dataPurchaseItems,
-        invoice: inv,
-        sortBy,
-        sortMode,
-        limit,
-        offset,
-        count,
-        pages
-      });
+    res.render('purchases/list', { title: 'Purchases', data: dataPurchases, moment, RpInd})
   } catch (e) {
     console.log(e);
     res.status(500).json({ message: e.message })
   }
 });
-
-// router.post('/add', isLoggedIn, async function (req, res, next) {
-//   try {
-//     const { invoice, time, operator, totalsum, supplier, itemcode, quantity, purchaseprice, totalprice } = req.body;
-
-//     console.log('purchases', req.body)
-
-//     //const purchases = await Purchase.create({ invoice, time, operator, totalsum, supplier });
-//     //const purchaseitems = await Purchaseitem.create({ invoice, itemcode, quantity, purchaseprice, totalprice });
-
-//     res.status(201).json({
-//     });
-//   } catch (e) {
-//     console.log(e);
-//   }
-// });
 
 // router.get('/edit/:id', isLoggedIn, async (req, res, next) => {
 //   try {

@@ -32,11 +32,9 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: DataTypes.NOW
     },
     totalsum: {
-      allowNull: false,
       type: DataTypes.NUMERIC
     },
     supplier: {
-      allowNull: false,
       type: DataTypes.INTEGER,
       references: {
         model: 'Suppliers',

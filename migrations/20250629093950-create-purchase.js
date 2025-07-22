@@ -13,11 +13,9 @@ module.exports = {
         defaultValue: Sequelize.NOW
       },
       totalsum: {
-        allowNull: false,
         type: Sequelize.NUMERIC(19, 2)
       },
       supplier: {
-        allowNull: false,
         type: Sequelize.INTEGER,
         references: {
           model: 'Suppliers',
