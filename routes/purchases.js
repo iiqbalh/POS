@@ -14,60 +14,60 @@ router.get('/add', isLoggedIn, async function (req, res, next) {
   const purchaseitems = await Purchaseitem.findAll();
   res.render('purchases/form', {
     title: 'Purchases',
-    data: {},
     goods,
+    good: {},
     suppliers,
     purchases,
     purchaseitems,
-    name: req.session.user.name,
-    RpInd
+    purchaseitem: {}, 
+    name: req.session.user.name
   })
 });
 
 
 // Get invoice data
 router.get('/invoice', async (req, res) => {
-    try {
-        const today = moment().format('YYYYMMDD');
-        const lastInvoice = await Purchase.findOne({
-            where: {
-                invoice: {
-                    [Op.like]: `INV-${today}-%`
-                }
-            },
-            order: [['invoice', 'ASC']]
-        });
-
-        let seq = 1;
-        if (lastInvoice) {
-            const lastSeq = parseInt(lastInvoice.invoice.split('-')[2]);
-            seq = lastSeq + 1;
-            console.log(seq)
+  try {
+    const today = moment().format('YYYYMMDD');
+    const lastInvoice = await Purchase.findOne({
+      where: {
+        invoice: {
+          [Op.like]: `INV-${today}-%`
         }
+      },
+      order: [['invoice', 'ASC']]
+    });
 
-        const invoice = `INV-${today}-${seq}`;
-
-        // Get existing items with goods names
-        const purchaseitems = await Purchaseitem.findAll({
-            where: { invoice },
-            include: [{
-                model: Good,
-                attributes: ['name']
-            }]
-        });
-        
-        res.json({
-            invoice,
-            operator: req.session.user.name,
-            purchaseitems: purchaseitems.map(item => ({
-                ...item.toJSON(),
-                name: item.Good.name
-            }))
-        });
-    } catch (error) {
-        console.error('Error generating invoice:', error);
-        res.status(500).json({ error: 'Failed to generate invoice' });
+    let seq = 1;
+    if (lastInvoice) {
+      const lastSeq = parseInt(lastInvoice.invoice.split('-')[2]);
+      seq = lastSeq + 1;
+      console.log(seq)
     }
+
+    const invoice = `INV-${today}-${seq}`;
+
+    // Get existing items with goods names
+    const purchaseitems = await Purchaseitem.findAll({
+      where: { invoice },
+      include: [{
+        model: Good,
+        attributes: ['name']
+      }]
+    });
+
+    res.json({
+      invoice,
+      operator: req.session.user.name,
+      purchaseitems: purchaseitems.map(item => ({
+        ...item.toJSON(),
+        name: item.Good.name
+      }))
+    });
+  } catch (error) {
+    console.error('Error generating invoice:', error);
+    res.status(500).json({ error: 'Failed to generate invoice' });
+  }
 });
 
 //Get goods by barcode
@@ -94,7 +94,7 @@ router.post('/items/add', async (req, res) => {
   try {
     const { invoice, itemcode, quantity, purchaseprice, totalprice } = req.body;
 
-    
+
     const [purchase] = await Purchase.findOrCreate({
       where: { invoice },
       defaults: {
@@ -103,13 +103,13 @@ router.post('/items/add', async (req, res) => {
       }
     });
 
-    
+
     const goods = await Good.findOne({ where: { barcode: itemcode } });
     if (!goods) {
       return res.status(404).json({ error: 'Goods not found' });
     }
 
-    
+
     const item = await Purchaseitem.create({
       invoice,
       itemcode,
@@ -119,17 +119,17 @@ router.post('/items/add', async (req, res) => {
     });
 
     res.json({
-            id: item.id,
-            invoice: item.invoice,
-            itemcode: item.itemcode,
-            name: goods.name,
-            quantity: item.quantity,
-            purchaseprice: item.purchaseprice,
-            totalprice: item.totalprice
-        });
+      id: item.id,
+      invoice: item.invoice,
+      itemcode: item.itemcode,
+      name: goods.name,
+      quantity: item.quantity,
+      purchaseprice: item.purchaseprice,
+      totalprice: item.totalprice
+    });
   } catch (error) {
     console.error('Error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Failed to add item',
       details: error.message
     });
@@ -138,49 +138,49 @@ router.post('/items/add', async (req, res) => {
 
 // Delete item
 router.delete('/items/:id', async (req, res) => {
-    try {
-        const { id } = req.params;
-        
-        
-        const item = await Purchaseitem.findOne({ where: { id } });
-        if (!item) {
-            return res.status(404).json({ error: 'Item not found' });
-        }
+  try {
+    const { id } = req.params;
 
-        
-        await Purchaseitem.destroy({ where: { id } });
 
-        
-        await Good.update(
-            { stock: sequelize.literal(`stock - ${item.quantity}`) },
-            { where: { barcode: item.itemcode } }
-        );
-
-        res.json({ success: true });
-    } catch (error) {
-        console.error('Error deleting item:', error);
-        res.status(500).json({ error: 'Failed to delete item' });
+    const item = await Purchaseitem.findOne({ where: { id } });
+    if (!item) {
+      return res.status(404).json({ error: 'Item not found' });
     }
+
+
+    await Purchaseitem.destroy({ where: { id } });
+
+
+    await Good.update(
+      { stock: sequelize.literal(`stock - ${item.quantity}`) },
+      { where: { barcode: item.itemcode } }
+    );
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting item:', error);
+    res.status(500).json({ error: 'Failed to delete item' });
+  }
 });
 
 // Complete purchase
 router.post('/finish', async (req, res) => {
-    try {
-        const { invoice, supplierId, totalsum } = req.body;
+  try {
+    const { invoice, supplierId, totalsum } = req.body;
 
-        
-        await Purchase.upsert({
-            invoice,
-            supplier: Number(supplierId),
-            totalsum,
-            operator: req.session.user.userId
-        });
 
-        res.json({ success: true });
-    } catch (error) {
-        console.error('Error completing purchase:', error);
-        res.status(500).json({ error: 'Failed to complete purchase' });
-    }
+    await Purchase.upsert({
+      invoice,
+      supplier: Number(supplierId),
+      totalsum,
+      operator: req.session.user.userId
+    });
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error completing purchase:', error);
+    res.status(500).json({ error: 'Failed to complete purchase' });
+  }
 });
 
 //list
@@ -218,51 +218,76 @@ router.get('/', isLoggedIn, async function (req, res, next) {
     params['offset'] = offset
 
 
-    const dataPurchases = await Purchase.findAll(params);
-
-    res.render('purchases/list', { title: 'Purchases', data: dataPurchases, moment, RpInd})
+    const dataPurchases = await Purchase.findAll({
+      params,
+      include: [
+        {
+          model: Supplier
+        }
+      ]
+    });
+    res.render('purchases/list', { title: 'Purchases', dataPurchases, moment, RpInd })
   } catch (e) {
     console.log(e);
     res.status(500).json({ message: e.message })
   }
 });
 
-// router.get('/edit/:id', isLoggedIn, async (req, res, next) => {
-//   try {
-//     const Purchase = await Purchase.findByPk(req.params.id);
+router.get('/edit/:invoice', isLoggedIn, async (req, res, next) => {
+  try {
+    const purchase = await Purchase.findOne({
+      where: { invoice: req.params.invoice },
+      include: [
+        {
+          model: Purchaseitem,
+          include: [
+            {
+              model: Good
+            }
+          ]
+        }
+      ]
+    })
 
-//     if (!Purchase) {
-//       console.log('Purchase not found');
-//     }
+    const supplier = await Supplier.findAll()
 
-//     res.render('purchases/form', {
-//       data: Purchase
-//     });
-//   } catch (err) {
-//     console.error(err);
-//   }
-// });
+    const good = await Good.findAll()
 
-// router.post('/edit/:id', isLoggedIn, async (req, res, next) => {
-//   try {
-//     const { name, address, phonecharacter } = req.body;
-//     const { id } = req.params;
+    res.render('purchases/form', {
+      purchases: purchase,
+      good: purchase.Purchaseitem[0].Good,
+      purchaseitem: purchase.Purchaseitem[0],
+      suppliers: supplier,
+      goods: good,
+      name: req.session.user.name
+    });
+  } catch (err) {
+    console.error(err);
+  }
+});
 
-//     const [updatedRows] = await Purchase.update({ name, address, phonecharacter }, { where: { PurchaseId: id } });
+router.post('/edit/:invoice', isLoggedIn, async (req, res, next) => {
+  try {
+    const { itemcode, quantity, purchaseprice, totalprice } = req.body;
 
-//     if (updatedRows === 0) {
-//       console.log('error', 'Purchase not found');
-//     } else {
-//       console.log('success', 'Purchase updated successfully');
-//     }
+    console.log(req.params.invoice, req.body)
 
-//     res.redirect('/purchases');
+    // const [updatedRows] = await Purchaseitem.create({
+    //   invoice,
+    //   itemcode,
+    //   quantity,
+    //   purchaseprice,
+    //   totalprice
+    // },
+    //   {
+    //     where: { invoice: req.params.invoice }
+    //   });
 
-//   } catch (err) {
-//     console.error(err);
-//     res.redirect('/purchases');
-//   }
-// });
+  } catch (err) {
+    console.error(err);
+    res.redirect('/purchases');
+  }
+});
 
 // router.get('/delete/:id', isLoggedIn, async (req, res, next) => {
 //   try {
