@@ -11,14 +11,13 @@ router.get('/add', isLoggedIn, async function (req, res, next) {
   const goods = await Good.findAll();
   const suppliers = await Supplier.findAll();
   const purchases = await Purchase.findAll();
-  const purchaseitems = await Purchaseitem.findAll();
+  const purchaseitem = await Purchaseitem.findAll();
   res.render('purchases/form', {
     title: 'Purchases',
     goods,
     good: {},
     suppliers,
     purchases,
-    purchaseitems,
     purchaseitem: {}, 
     name: req.session.user.name
   })
@@ -77,6 +76,8 @@ router.get('/:barcode', async (req, res) => {
     const goods = await Good.findOne({
       where: { barcode }
     });
+
+    console.log(barcode, goods)
 
     if (!goods) {
       return res.status(404).json({ error: 'Goods not found' });
@@ -247,7 +248,9 @@ router.get('/edit/:invoice', isLoggedIn, async (req, res, next) => {
           ]
         }
       ]
-    })
+    });
+
+    console.log(purchase.Purchaseitems.length)
 
     const supplier = await Supplier.findAll()
 
@@ -255,8 +258,8 @@ router.get('/edit/:invoice', isLoggedIn, async (req, res, next) => {
 
     res.render('purchases/form', {
       purchases: purchase,
-      good: purchase.Purchaseitem[0].Good,
-      purchaseitem: purchase.Purchaseitem[0],
+      good: purchase.Purchaseitems[0].Good,
+      purchaseitem: purchase.Purchaseitems,
       suppliers: supplier,
       goods: good,
       name: req.session.user.name
@@ -266,11 +269,11 @@ router.get('/edit/:invoice', isLoggedIn, async (req, res, next) => {
   }
 });
 
-router.post('/edit/:invoice', isLoggedIn, async (req, res, next) => {
-  try {
-    const { itemcode, quantity, purchaseprice, totalprice } = req.body;
+// router.post('/edit/:invoice', isLoggedIn, async (req, res, next) => {
+//   try {
+//     const { itemcode, quantity, purchaseprice, totalprice } = req.body;
 
-    console.log(req.params.invoice, req.body)
+//     console.log(req.params.invoice, req.body)
 
     // const [updatedRows] = await Purchaseitem.create({
     //   invoice,
@@ -283,11 +286,11 @@ router.post('/edit/:invoice', isLoggedIn, async (req, res, next) => {
     //     where: { invoice: req.params.invoice }
     //   });
 
-  } catch (err) {
-    console.error(err);
-    res.redirect('/purchases');
-  }
-});
+//   } catch (err) {
+//     console.error(err);
+//     res.redirect('/purchases');
+//   }
+// });
 
 // router.get('/delete/:id', isLoggedIn, async (req, res, next) => {
 //   try {

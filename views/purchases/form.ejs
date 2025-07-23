@@ -55,189 +55,184 @@
                                     <h1 class="h3 mb-2 text-gray-800">Transaction</h1>
                                 </div>
                                 <form id="add-purchaseitem">
-                                    <form method="post" action="/purchases/edit/<%=purchases.invoice%>">
-                                        <div class="card-body border-bottom pb-5">
-                                            <div class="table-responsive">
-                                                <div class="row">
-                                                    <div class="col-sm-4">
-                                                        <label for="invoice" class="form-label">Invoice</label>
-                                                        <input type="text" name="invoice" id="invoice"
-                                                            class="form-control" value="<%=purchases.invoice%>"
-                                                            disabled>
-                                                    </div>
+                                    <div class="card-body border-bottom pb-5">
+                                        <div class="table-responsive">
+                                            <div class="row">
+                                                <div class="col-sm-4">
+                                                    <label for="invoice" class="form-label">Invoice</label>
+                                                    <input type="text" name="invoice" id="invoice" class="form-control"
+                                                        value="<%=purchases.invoice%>" disabled>
+                                                </div>
 
-                                                    <div class="col-sm-4">
-                                                        <label for="time" class="form-label">Time</label>
-                                                        <input type="text" name="time" id="time" class="form-control"
-                                                            value="<%=purchases.time%>" disabled>
-                                                    </div>
+                                                <div class="col-sm-4">
+                                                    <label for="time" class="form-label">Time</label>
+                                                    <input type="text" name="time" id="time" class="form-control"
+                                                        value="<%=purchases.time%>" disabled>
+                                                </div>
 
-                                                    <div class="col-sm-4">
-                                                        <label for="operator" class="form-label">Operator</label>
-                                                        <input type="text" name="operator" id="operator"
-                                                            class="form-control" value="<%=name%>" disabled>
-                                                    </div>
+                                                <div class="col-sm-4">
+                                                    <label for="operator" class="form-label">Operator</label>
+                                                    <input type="text" name="operator" id="operator"
+                                                        class="form-control" value="<%=name%>" disabled>
                                                 </div>
                                             </div>
                                         </div>
+                                    </div>
 
-                                        <div class="card-body border-bottom pb-5">
-                                            <div class="table-responsive">
-                                                <div class="row pb-3">
-                                                    <div class="col-sm-4">
-                                                        <label for="itemcode" class="form-label">Goods
-                                                            Barcode</label>
-                                                        <select name="itemcode" id="itemcode" class="form-control">
-                                                            <%goods.forEach(item=> {%>
-                                                                <option value="<%=item.barcode%>"
-                                                                    <%=good.itemcode==item.barcode ? ' selected' : '' %>
-                                                                    ><%=item.barcode%> - <%=item.name%>
-                                                                </option>
-                                                                <%})%>
-                                                        </select>
-                                                    </div>
-
-                                                    <div class="col-sm-4">
-                                                        <label for="name" class="form-label">Goods Name</label>
-                                                        <input type="text" name="name" id="name" class="form-control"
-                                                            value="" disabled>
-                                                    </div>
-
-                                                    <div class="col-sm-4">
-                                                        <label for="stock" class="form-label">Stock</label>
-                                                        <input type="text" name="stock" id="stock" class="form-control"
-                                                            value="" disabled>
-                                                    </div>
+                                    <div class="card-body border-bottom pb-5">
+                                        <div class="table-responsive">
+                                            <div class="row pb-3">
+                                                <div class="col-sm-4">
+                                                    <label for="itemcode" class="form-label">Goods
+                                                        Barcode</label>
+                                                    <select name="itemcode" id="itemcode" class="form-control">
+                                                        <%goods.forEach(item=> {%>
+                                                            <option value="<%=item.barcode%>"
+                                                                <%=good.itemcode==item.barcode ? ' selected' : '' %>
+                                                                ><%=item.barcode%> - <%=item.name%>
+                                                            </option>
+                                                            <%})%>
+                                                    </select>
                                                 </div>
 
-                                                <div class="row">
-                                                    <div class="col-sm-4">
-                                                        <label for="purchaseprice" class="form-label">Purchase
-                                                            Price</label>
-                                                        <input type="text" name="purchaseprice" id="purchaseprice"
-                                                            class="form-control" value="" required>
-                                                    </div>
-
-                                                    <div class="col-sm-4">
-                                                        <label for="quantity" class="form-label">Qty</label>
-                                                        <input type="number" step="0" name="quantity" id="quantity"
-                                                            class="form-control" value="" required>
-                                                    </div>
-
-                                                    <div class="col-sm-4">
-                                                        <label for="totalprice" class="form-label">Total Price</label>
-                                                        <input type="text" name="totalprice" id="totalprice"
-                                                            class="form-control"
-                                                            value="<%=purchaseitem.purchaseprice ? '' : purchaseitem.purchaseprice%>"
-                                                            required>
-                                                    </div>
-                                                </div>
-                                                <button class="btn btn-primary btn-icon-split mt-3" type="submit">
-                                                    <span class="icon text-white-10">
-                                                        <i class="fas fa-plus"></i>
-                                                    </span>
-                                                    <span class="text">Add</span>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </form>
-
-                                    <form id="add-purchase">
-                                        <div class="card-body px-0 overflow-x-auto">
-                                            <table class="table table-striped">
-                                                <thead>
-                                                    <tr>
-                                                        <th>No.</th>
-                                                        <th>Barcode</th>
-                                                        <th>Name</th>
-                                                        <th>Qty</th>
-                                                        <th>Price</th>
-                                                        <th>Total Price</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody id="table-content">
-                                                    <%if(purchaseitem && purchaseitem.length==0){%>
-                                                        <tr>
-                                                            <td colspan="6" class="text-center">no items</td>
-                                                        </tr>
-                                                        <%} else {%>
-                                                            <%purchaseitems.forEach((item, index)=> {%>
-                                                                <tr>
-                                                                    <td>
-                                                                        <%=index + 1%>
-                                                                    </td>
-                                                                    <td>
-                                                                        <%=item.itemcode%>
-                                                                    </td>
-                                                                    <td>
-                                                                        <%=purchases.Purchaseitems[0].Good.name%>
-                                                                    </td>
-                                                                    <td>
-                                                                        <%=item.quantity%>
-                                                                    </td>
-                                                                    <td>
-                                                                        <%=item.purchaseprice%>
-                                                                    </td>
-                                                                    <td>
-                                                                        <%=item.totalprice%>
-                                                                    </td>
-                                                                    <td>
-                                                                        <button
-                                                                            class="btn btn-danger btn-circle delete-item"
-                                                                            data-id="${item.id}">
-                                                                            <i class="fas fa-trash"></i>
-                                                                        </button>
-                                                                    </td>
-                                                                </tr>
-                                                                <%})%>
-                                                                    <%}%>
-                                                </tbody>
-                                            </table>
-                                        </div>
-
-                                        <div class="card-footer">
-                                            <div class="table-responsive">
-                                                <div class="row mb-3">
-                                                    <label for="totalsum" class="col-sm-2 col-form-label">Total
-                                                        Summary</label>
-                                                    <div class="col-sm-10">
-                                                        <input type="text" name="totalsum" id="totalsum"
-                                                            class="form-control" value="<%=purchases.totalsum%>"
-                                                            placeholder="0.00" disabled>
-                                                    </div>
+                                                <div class="col-sm-4">
+                                                    <label for="name" class="form-label">Goods Name</label>
+                                                    <input type="text" name="name" id="name" class="form-control"
+                                                        value="" disabled>
                                                 </div>
 
-                                                <div class="row mb-3">
-                                                    <label for="supplier"
-                                                        class="col-sm-2 col-form-label">Supplier</label>
-                                                    <div class="col-sm-10">
-                                                        <select name="supplier" id="supplier" class="form-control">
-                                                            <%suppliers.forEach(item=> {%>
-                                                                <option value="<%=item.supplierId%>"
-                                                                    <%=purchases.supplier==item.supplierId ? ' selected'
-                                                                    : '' %>
-                                                                    ><%=item.name%>
-                                                                </option>
-                                                                <%})%>
-                                                        </select>
-                                                    </div>
+                                                <div class="col-sm-4">
+                                                    <label for="stock" class="form-label">Stock</label>
+                                                    <input type="text" name="stock" id="stock" class="form-control"
+                                                        value="" disabled>
                                                 </div>
                                             </div>
-                                            <button class="btn btn-success btn-icon-split" type="submit">
-                                                <span class="icon">
+
+                                            <div class="row">
+                                                <div class="col-sm-4">
+                                                    <label for="purchaseprice" class="form-label">Purchase
+                                                        Price</label>
+                                                    <input type="text" name="purchaseprice" id="purchaseprice"
+                                                        class="form-control" value="" required>
+                                                </div>
+
+                                                <div class="col-sm-4">
+                                                    <label for="quantity" class="form-label">Qty</label>
+                                                    <input type="number" step="0" name="quantity" id="quantity"
+                                                        class="form-control" value="" required>
+                                                </div>
+
+                                                <div class="col-sm-4">
+                                                    <label for="totalprice" class="form-label">Total Price</label>
+                                                    <input type="text" name="totalprice" id="totalprice"
+                                                        class="form-control"
+                                                        value="<%=purchaseitem.purchaseprice ? '' : purchaseitem.purchaseprice%>"
+                                                        required>
+                                                </div>
+                                            </div>
+                                            <button class="btn btn-primary btn-icon-split mt-3" type="submit">
+                                                <span class="icon text-white-10">
                                                     <i class="fas fa-plus"></i>
                                                 </span>
-                                                <span class="text">Finish</span>
+                                                <span class="text">Add</span>
                                             </button>
-
-                                            <a class="btn btn-warning btn-icon-split" href="/purchases">
-                                                <span class="icon text-white-10">
-                                                    <i class="fas fa-arrow-left"></i>
-                                                </span>
-                                                <span class="text">Back</span>
-                                            </a>
                                         </div>
-                                    </form>
+                                    </div>
+                                </form>
+
+                                <form id="add-purchase">
+                                    <div class="card-body px-0 overflow-x-auto">
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>No.</th>
+                                                    <th>Barcode</th>
+                                                    <th>Name</th>
+                                                    <th>Qty</th>
+                                                    <th>Price</th>
+                                                    <th>Total Price</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="table-content">
+                                                <%if(purchaseitem && purchaseitem.length > 0){%>
+                                                    <%purchaseitem.forEach((item, index)=> {%>
+                                                        <tr>
+                                                            <td>
+                                                                <%=index + 1%>
+                                                            </td>
+                                                            <td>
+                                                                <%=item.itemcode%>
+                                                            </td>
+                                                            <td>
+                                                                <%=good.name%>
+                                                            </td>
+                                                            <td>
+                                                                <%=item.quantity%>
+                                                            </td>
+                                                            <td>
+                                                                <%=item.purchaseprice%>
+                                                            </td>
+                                                            <td>
+                                                                <%=item.totalprice%>
+                                                            </td>
+                                                            <td>
+                                                                <button class="btn btn-danger btn-circle delete-item"
+                                                                    data-id="${item.id}">
+                                                                    <i class="fas fa-trash"></i>
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                        <%})%>
+                                                            <%} else {%>
+                                                                <tr>
+                                                                    <td colspan="6" class="text-center">no items</td>
+                                                                </tr>
+                                                                <%}%>
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    <div class="card-footer">
+                                        <div class="table-responsive">
+                                            <div class="row mb-3">
+                                                <label for="totalsum" class="col-sm-2 col-form-label">Total
+                                                    Summary</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" name="totalsum" id="totalsum"
+                                                        class="form-control" value="<%=purchases.totalsum%>"
+                                                        placeholder="0.00" disabled>
+                                                </div>
+                                            </div>
+
+                                            <div class="row mb-3">
+                                                <label for="supplier" class="col-sm-2 col-form-label">Supplier</label>
+                                                <div class="col-sm-10">
+                                                    <select name="supplier" id="supplier" class="form-control">
+                                                        <%suppliers.forEach(item=> {%>
+                                                            <option value="<%=item.supplierId%>"
+                                                                <%=purchases.supplier==item.supplierId ? ' selected'
+                                                                : '' %>
+                                                                ><%=item.name%>
+                                                            </option>
+                                                            <%})%>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button class="btn btn-success btn-icon-split" type="submit">
+                                            <span class="icon">
+                                                <i class="fas fa-plus"></i>
+                                            </span>
+                                            <span class="text">Finish</span>
+                                        </button>
+
+                                        <a class="btn btn-warning btn-icon-split" href="/purchases">
+                                            <span class="icon text-white-10">
+                                                <i class="fas fa-arrow-left"></i>
+                                            </span>
+                                            <span class="text">Back</span>
+                                        </a>
+                                    </div>
                                 </form>
                             </div>
                         </div>
@@ -354,7 +349,7 @@
                 // Update total summary
                 const updateTotalSummary = () => {
                     const total = currentPurchaseItems.reduce((sum, item) => sum + Number(item.totalprice), 0);
-                    $('#total-summary').val(total);
+                    $('#totalsum').val(total);
                 };
 
                 // Delete item
@@ -377,18 +372,18 @@
 
                 // Fetch goods data when barcode changes
                 const loadGoodsData = async () => {
-                    const barcode = $('#goods-barcode').val();
+                    const barcode = $('#itemcode').val();
                     try {
                         const goods = await $.ajax({
                             url: `http://localhost:3000/purchases/${barcode}`,
                             method: 'GET'
                         });
 
-                        $('#goods-name').val(goods.name);
+                        $('#name').val(goods.name);
                         $('#stock').val(goods.stock);
-                        $('#purchase-price').val(goods.purchaseprice);
-                        $('#qty').val(1);
-                        $('#total-price').val((goods.purchaseprice * 1).toFixed(2));
+                        $('#purchaseprice').val(goods.purchaseprice);
+                        $('#quantity').val(1);
+                        $('#totalprice').val((goods.purchaseprice * 1).toFixed(2));
                     } catch (error) {
                         console.error('Error fetching goods:', error);
                         resetGoodsForm();
@@ -397,18 +392,18 @@
 
                 // Reset goods form
                 const resetGoodsForm = () => {
-                    $('#goods-name').val('');
+                    $('#name').val('');
                     $('#stock').val('');
-                    $('#purchase-price').val('');
-                    $('#qty').val('');
-                    $('#total-price').val('');
+                    $('#purchaseprice').val('');
+                    $('#quantity').val('');
+                    $('#totalprice').val('');
                 };
 
                 // Calculate total price
                 const calculateTotalPrice = () => {
-                    const price = parseFloat($('#purchase-price').val()) || 0;
-                    const qty = parseInt($('#qty').val()) || 0;
-                    $('#total-price').val((price * qty).toFixed(2));
+                    const price = parseFloat($('#purchaseprice').val()) || 0;
+                    const qty = parseInt($('#quantity').val()) || 0;
+                    $('#totalprice').val((price * qty).toFixed(2));
                 };
 
                 // Add item to purchase
@@ -417,10 +412,10 @@
 
                     try {
                         const invoice = $('#invoice').val();
-                        const itemcode = $('#goods-barcode').val();
-                        const quantity = parseInt($('#qty').val());
-                        const purchaseprice = parseFloat($('#purchase-price').val());
-                        const totalprice = parseFloat($('#total-price').val());
+                        const itemcode = $('#itemcode').val();
+                        const quantity = parseInt($('#quantity').val());
+                        const purchaseprice = parseFloat($('#purchaseprice').val());
+                        const totalprice = parseFloat($('#totalprice').val());
 
                         const newItem = await $.ajax({
                             url: 'http://localhost:3000/purchases/items/add',
@@ -452,7 +447,7 @@
                     try {
                         const invoice = $('#invoice').val();
                         const supplierId = $('#supplier').val();
-                        const totalsum = parseFloat($('#total-summary').val());
+                        const totalsum = parseFloat($('#totalsum').val());
 
                         await $.ajax({
                             url: 'http://localhost:3000/purchases/finish',
@@ -472,8 +467,8 @@
                 };
 
                 // Event listeners
-                $('#goods-barcode').on('change', loadGoodsData);
-                $('#qty').on('input', calculateTotalPrice);
+                $('#itemcode').on('change', loadGoodsData);
+                $('#quantity').on('input', calculateTotalPrice);
                 $('#add-purchaseitem').on('submit', addPurchaseItem);
                 $('#add-purchase').on('submit', finishPurchase);
                 $(document).on('click', '.delete-item', function () {
