@@ -61,19 +61,20 @@
                                                 <div class="col-sm-4">
                                                     <label for="invoice" class="form-label">Invoice</label>
                                                     <input type="text" name="invoice" id="invoice" class="form-control"
-                                                        value="<%=purchases.invoice%>" disabled>
+                                                        value="<%=purchases.invoice%>" readonly>
                                                 </div>
 
                                                 <div class="col-sm-4">
                                                     <label for="time" class="form-label">Time</label>
                                                     <input type="text" name="time" id="time" class="form-control"
-                                                        value="<%=purchases.time%>" disabled>
+                                                        value="<%=moment(purchases.time).format('DD MMM YYYY HH:mm:ss')%>"
+                                                        readonly>
                                                 </div>
 
                                                 <div class="col-sm-4">
                                                     <label for="operator" class="form-label">Operator</label>
                                                     <input type="text" name="operator" id="operator"
-                                                        class="form-control" value="<%=name%>" disabled>
+                                                        class="form-control" value="<%=name%>" readonly>
                                                 </div>
                                             </div>
                                         </div>
@@ -98,13 +99,13 @@
                                                 <div class="col-sm-4">
                                                     <label for="name" class="form-label">Goods Name</label>
                                                     <input type="text" name="name" id="name" class="form-control"
-                                                        value="" disabled>
+                                                        value="" readonly>
                                                 </div>
 
                                                 <div class="col-sm-4">
                                                     <label for="stock" class="form-label">Stock</label>
                                                     <input type="text" name="stock" id="stock" class="form-control"
-                                                        value="" disabled>
+                                                        value="" readonly>
                                                 </div>
                                             </div>
 
@@ -154,7 +155,7 @@
                                                 </tr>
                                             </thead>
                                             <tbody id="table-content">
-                                                <%if(purchaseitem && purchaseitem.length > 0){%>
+                                                <%if(purchaseitem && purchaseitem.length> 0){%>
                                                     <%purchaseitem.forEach((item, index)=> {%>
                                                         <tr>
                                                             <td>
@@ -185,7 +186,8 @@
                                                         <%})%>
                                                             <%} else {%>
                                                                 <tr>
-                                                                    <td colspan="6" class="text-center">no items</td>
+                                                                    <td colspan="6" class="text-center">no items
+                                                                    </td>
                                                                 </tr>
                                                                 <%}%>
                                             </tbody>
@@ -200,7 +202,7 @@
                                                 <div class="col-sm-10">
                                                     <input type="text" name="totalsum" id="totalsum"
                                                         class="form-control" value="<%=purchases.totalsum%>"
-                                                        placeholder="0.00" disabled>
+                                                        placeholder="0.00" readonly>
                                                 </div>
                                             </div>
 
@@ -298,29 +300,6 @@
             $(document).ready(function () {
                 // Initialize variables
                 let currentPurchaseItems = [];
-
-                // Initialize purchase when page loads
-                const generateInvoice = async () => {
-                    try {
-                        const response = await $.ajax({
-                            url: 'http://localhost:3000/purchases/invoice',
-                            method: 'GET'
-                        });
-
-                        $('#invoice').val(response.invoice);
-                        $('#time').val(moment().format('DD MMM YYYY HH:mm:ss'));
-
-                        if (response.purchaseitems && response.purchaseitems.length > 0) {
-                            currentPurchaseItems = response.purchaseitems;
-                            updatePurchaseItemsTable();
-                            updateTotalSummary();
-                        }
-
-                    } catch (error) {
-                        console.error('Error:', error);
-                        alert('Failed to generate invoice number');
-                    }
-                };
 
                 // Update purchase items table
                 const updatePurchaseItemsTable = () => {

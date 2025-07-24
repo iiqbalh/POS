@@ -7,65 +7,142 @@ var router = express.Router();
 
 
 //form
-router.get('/add', isLoggedIn, async function (req, res, next) {
-  const goods = await Good.findAll();
-  const suppliers = await Supplier.findAll();
-  const purchases = await Purchase.findAll();
-  const purchaseitem = await Purchaseitem.findAll();
-  res.render('purchases/form', {
-    title: 'Purchases',
-    goods,
-    good: {},
-    suppliers,
-    purchases,
-    purchaseitem: {}, 
-    name: req.session.user.name
-  })
-});
+// router.get('/add', isLoggedIn, async function (req, res, next) {
+//   const goods = await Good.findAll();
+//   const suppliers = await Supplier.findAll();
+//   const purchases = await Purchase.findAll();
+
+//   res.render('purchases/form', {
+//     title: 'Purchases',
+//     goods,
+//     good: {},
+//     suppliers,
+//     purchases,
+//     purchaseitem: {},
+//     name: req.session.user.name,
+//     moment
+//   })
+// });
 
 
 // Get invoice data
-router.get('/invoice', async (req, res) => {
+// router.get('/invoice', async (req, res) => {
+//   try {
+//     const today = moment().format('YYYYMMDD');
+//     const lastInvoice = await Purchase.findOne({
+//       where: {
+//         invoice: {
+//           [Op.like]: `INV-${today}-%`
+//         }
+//       },
+//       order: [['invoice', 'ASC']]
+//     });
+
+//     let seq = 1;
+//     if (lastInvoice) {
+//       const lastSeq = parseInt(lastInvoice.invoice.split('-')[2]);
+//       lastSeq + seq++;
+//     }
+
+//     const invoice = `INV-${today}-${seq}`;
+
+//     // Get existing items with goods names
+//     const purchaseitems = await Purchaseitem.findAll({
+//       where: { invoice },
+//       include: [{
+//         model: Good,
+//         attributes: ['name']
+//       }]
+//     });
+
+//     res.json({
+//       seq,
+//       invoice,
+//       operator: req.session.user.name,
+//       purchaseitems: purchaseitems.map(item => ({
+//         ...item.toJSON(),
+//         name: item.Good.name
+//       }))
+//     });
+//   } catch (error) {
+//     console.error('Error generating invoice:', error);
+//     res.status(500).json({ error: 'Failed to generate invoice' });
+//   }
+// });
+
+router.get('/add', isLoggedIn, async (req, res) => {
   try {
-    const today = moment().format('YYYYMMDD');
-    const lastInvoice = await Purchase.findOne({
-      where: {
-        invoice: {
-          [Op.like]: `INV-${today}-%`
-        }
-      },
-      order: [['invoice', 'ASC']]
+    // Create a new purchase with auto-generated invoice
+    const newPurchase = await Purchase.create({
+      operator: req.session.user.userId, // assuming you have user auth
+      totalsum: 0 // initial total
     });
 
-    let seq = 1;
-    if (lastInvoice) {
-      const lastSeq = parseInt(lastInvoice.invoice.split('-')[2]);
-      seq = lastSeq + 1;
-      console.log(seq)
-    }
-
-    const invoice = `INV-${today}-${seq}`;
-
-    // Get existing items with goods names
-    const purchaseitems = await Purchaseitem.findAll({
-      where: { invoice },
-      include: [{
-        model: Good,
-        attributes: ['name']
-      }]
-    });
-
-    res.json({
-      invoice,
-      operator: req.session.user.name,
-      purchaseitems: purchaseitems.map(item => ({
-        ...item.toJSON(),
-        name: item.Good.name
-      }))
-    });
+    // Redirect to edit page with the new invoice number
+    res.redirect(`/purchases/edit/${newPurchase.invoice}`);
+    
   } catch (error) {
-    console.error('Error generating invoice:', error);
-    res.status(500).json({ error: 'Failed to generate invoice' });
+    console.error('Error creating new purchase:', error);
+    res.redirect('/purchases?error=Failed to create new purchase');
+  }
+});
+
+router.get('/edit/:invoice', isLoggedIn, async (req, res, next) => {
+  try {
+    const purchase = await Purchase.findOne({
+      where: { invoice: req.params.invoice },
+      include: [
+        {
+          model: Purchaseitem,
+          include: [
+            {
+              model: Good
+            }
+          ]
+        }
+      ]
+    });
+
+    console.log(purchase.invoice)
+
+    const supplier = await Supplier.findAll()
+
+    const good = await Good.findAll()
+
+    res.render('purchases/form', {
+      purchases: purchase,
+      good: purchase.Purchaseitems[0].Good,
+      purchaseitem: purchase.Purchaseitems,
+      suppliers: supplier,
+      goods: good,
+      name: req.session.user.name,
+      moment
+    });
+  } catch (err) {
+    console.error(err);
+  }
+});
+
+router.post('/edit/:invoice', isLoggedIn, async (req, res, next) => {
+  try {
+    const { itemcode, quantity, purchaseprice, totalprice } = req.body;
+
+    console.log(req.params.invoice, req.body)
+
+    const [updatedRows] = await Purchaseitem.create({
+      invoice,
+      itemcode,
+      quantity,
+      purchaseprice,
+      totalprice
+    },
+      {
+        where: { invoice: req.params.invoice }
+      });
+    res.json(updatedRows);
+  } catch (err) {
+    console.error(err);
+    res.redirect('/purchases');
   }
 });
 
@@ -76,8 +153,6 @@ router.get('/:barcode', async (req, res) => {
     const goods = await Good.findOne({
       where: { barcode }
     });
-
-    console.log(barcode, goods)
 
     if (!goods) {
       return res.status(404).json({ error: 'Goods not found' });
@@ -233,64 +308,6 @@ router.get('/', isLoggedIn, async function (req, res, next) {
     res.status(500).json({ message: e.message })
   }
 });
-
-router.get('/edit/:invoice', isLoggedIn, async (req, res, next) => {
-  try {
-    const purchase = await Purchase.findOne({
-      where: { invoice: req.params.invoice },
-      include: [
-        {
-          model: Purchaseitem,
-          include: [
-            {
-              model: Good
-            }
-          ]
-        }
-      ]
-    });
-
-    console.log(purchase.Purchaseitems.length)
-
-    const supplier = await Supplier.findAll()
-
-    const good = await Good.findAll()
-
-    res.render('purchases/form', {
-      purchases: purchase,
-      good: purchase.Purchaseitems[0].Good,
-      purchaseitem: purchase.Purchaseitems,
-      suppliers: supplier,
-      goods: good,
-      name: req.session.user.name
-    });
-  } catch (err) {
-    console.error(err);
-  }
-});
-
-// router.post('/edit/:invoice', isLoggedIn, async (req, res, next) => {
-//   try {
-//     const { itemcode, quantity, purchaseprice, totalprice } = req.body;
-
-//     console.log(req.params.invoice, req.body)
-
-    // const [updatedRows] = await Purchaseitem.create({
-    //   invoice,
-    //   itemcode,
-    //   quantity,
-    //   purchaseprice,
-    //   totalprice
-    // },
-    //   {
-    //     where: { invoice: req.params.invoice }
-    //   });
-
-//   } catch (err) {
-//     console.error(err);
-//     res.redirect('/purchases');
-//   }
-// });
 
 // router.get('/delete/:id', isLoggedIn, async (req, res, next) => {
 //   try {

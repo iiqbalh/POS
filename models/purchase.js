@@ -13,8 +13,8 @@ module.exports = (sequelize, DataTypes) => {
       Purchase.belongsTo(models.Supplier, {
         foreignKey: 'supplier'
       })
-      Purchase.hasOne(models.User, {
-        foreignKey: 'userId'
+      Purchase.belongsTo(models.User, {
+        foreignKey: 'operator'
       })
       Purchase.hasMany(models.Purchaseitem, {
         foreignKey: 'invoice'
@@ -25,7 +25,8 @@ module.exports = (sequelize, DataTypes) => {
     invoice: {
       allowNull: false,
       primaryKey: true,
-      type: DataTypes.STRING
+      type: DataTypes.STRING,
+      defaultValue: sequelize.literal('purchasesinvoice()')
     },
     time: {
       type: DataTypes.DATE,
@@ -55,6 +56,14 @@ module.exports = (sequelize, DataTypes) => {
   {
     sequelize,
     modelName: 'Purchase',
+    hooks: {
+      beforeValidate: (purchase) => {
+        // Ensure invoice is generated if not provided
+        if (!purchase.invoice) {
+          purchase.invoice = sequelize.literal('purchasesinvoice()');
+        }
+      }
+    },
     timestamps: false,
     updatedAt: false,
   });

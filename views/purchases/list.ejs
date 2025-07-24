@@ -248,58 +248,6 @@
             modal.show();
         }
 
-        // // loadData
-        // const loadData = async () => {
-        //     try {
-        //         const searchParams = new URLSearchParams(params);
-        //         const response = await fetch(`http://localhost:3000/purchases?${searchParams}`, {
-        //             method: "GET",
-        //             headers: {
-        //                 'Content-Type': 'application/json'
-        //             }
-        //         });
-
-        //         const data = await response.json();
-        //         let html = '';
-
-        //         data.purchases.forEach((item, index) => {
-        //             html += `
-        //                     <tr>
-        //                         <td>
-        //                             ${item.invoice}
-        //                         </td>
-        //                         <td>
-        //                             ${item.time}
-        //                         </td>
-        //                         <td>
-        //                             ${item.totalsum}
-        //                         </td>
-        //                         <td>
-        //                             ${item.supplier}
-        //                         </td>
-        //                         <td>
-        //                             <a href="/purchases/edit/${item.invoice}"
-        //                                 class="btn btn-success btn-circle">
-        //                                 <i class="fas fa-info-circle"></i>
-        //                             </a>
-        //                             <button class="btn btn-danger btn-circle"
-        //                                 onclick="showDelete(${item.invoice})">
-        //                                 <i class="fas fa-trash"></i>
-        //                             </button>
-        //                        </td>
-        //                     </tr>
-        //                     `
-        //         });
-
-        //         document.getElementById('table-content').innerHTML = html;
-        //         params = { ...params, page: purchases.page, pages: purchases.pages };
-        //     } catch (e) {
-        //         console.log(e, "data gagal diload")
-        //     }
-        // };
-
-        // loadData()
-
         // function deleteData() {
         //     if (deleteId)
         //         window.location = `/purchases/delete/${deleteId}`
